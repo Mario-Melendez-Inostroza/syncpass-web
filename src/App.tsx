@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Link, Redirect, Route, Router, Switch } from 'wouter';
 import { useHashLocation } from 'wouter/use-hash-location';
 import { AuthProvider } from './auth/AuthContext';
+import { Logo } from './marca';
 import { useAuth } from './auth/contexto';
 import { EventoFormPagina } from './paginas/EventoFormPagina';
 import { EventoPagina } from './paginas/EventoPagina';
@@ -16,20 +17,40 @@ function idValido(texto: string | undefined): number | null {
   return Number.isInteger(id) && id > 0 ? id : null;
 }
 
-/** Cabecera con el usuario y el cierre de sesión, común a las pantallas del panel. */
+/** Cabecera común a las pantallas del panel: logo, menú y el usuario con su cierre de sesión. */
 function Marco({ children }: { children: ReactNode }) {
   const { estado, cerrarSesion } = useAuth();
   const usuario = estado.tipo === 'activa' ? estado.usuario : null;
+  const [ruta] = useHashLocation();
+  const enEventos = ruta === '/' || ruta.startsWith('/eventos') || ruta.startsWith('/proyectos');
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-          <Link href="/" className="text-lg font-extrabold tracking-tight">
-            SyncPass <span className="font-medium text-zinc-500 dark:text-zinc-400">· Panel del coordinador</span>
-          </Link>
+      <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/95 dark:border-zinc-800 dark:bg-zinc-900/95">
+        <div className="mx-auto flex h-16 max-w-5xl items-center justify-between gap-4 px-4">
+          <div className="flex items-center gap-8">
+            <Link href="/" aria-label="SyncPass, panel del coordinador">
+              <Logo />
+            </Link>
+            <nav aria-label="Panel" className="flex items-center text-sm">
+              <Link
+                href="/"
+                aria-current={enEventos ? 'page' : undefined}
+                className={`inline-flex min-h-11 items-center rounded-lg px-3 font-medium ${
+                  enEventos
+                    ? 'bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300'
+                    : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white'
+                }`}
+              >
+                Eventos
+              </Link>
+            </nav>
+          </div>
           <div className="flex items-center gap-3 text-sm">
-            <span className="text-zinc-600 dark:text-zinc-300">{usuario?.nombre || usuario?.email}</span>
+            <span className="hidden text-right leading-tight sm:block">
+              <span className="block font-medium text-zinc-800 dark:text-zinc-100">{usuario?.nombre || usuario?.email}</span>
+              <span className="block text-xs text-zinc-500 dark:text-zinc-400">Coordinador</span>
+            </span>
             <button
               type="button"
               onClick={() => void cerrarSesion()}
@@ -40,7 +61,7 @@ function Marco({ children }: { children: ReactNode }) {
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-4xl px-4 py-6">{children}</main>
+      <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>
     </div>
   );
 }
@@ -49,7 +70,7 @@ function NoEncontrada() {
   return (
     <div className="py-16 text-center">
       <h1 className="text-2xl font-bold">Página no encontrada</h1>
-      <Link href="/" className="mt-4 inline-block font-medium text-indigo-600 dark:text-indigo-400">
+      <Link href="/" className="mt-4 inline-block font-medium text-blue-600 dark:text-blue-400">
         Volver a los eventos
       </Link>
     </div>

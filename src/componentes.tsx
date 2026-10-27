@@ -46,7 +46,7 @@ export function Barra({
   valor,
   maximo,
   detalle,
-  color = 'bg-indigo-600',
+  color = 'bg-blue-600',
 }: {
   etiqueta: string;
   valor: number;
@@ -77,10 +77,10 @@ export function Barra({
 
 /** Estilo de los campos de formulario: el mismo de la pantalla de inicio de sesión. */
 export const CLASE_CAMPO =
-  'w-full min-h-11 rounded-xl border border-zinc-300 bg-white px-4 text-base text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100';
+  'w-full min-h-11 rounded-xl border border-zinc-300 bg-white px-4 text-base text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100';
 
 export const CLASE_BOTON_PRIMARIO =
-  'min-h-12 rounded-xl bg-indigo-600 px-4 font-semibold text-white hover:bg-indigo-500 disabled:opacity-60';
+  'min-h-12 rounded-xl bg-blue-600 px-4 font-semibold text-white hover:bg-blue-500 disabled:opacity-60';
 
 export const CLASE_BOTON_SECUNDARIO =
   'min-h-11 rounded-xl border border-zinc-300 px-4 font-medium hover:bg-zinc-100 disabled:opacity-60 dark:border-zinc-700 dark:hover:bg-zinc-800';

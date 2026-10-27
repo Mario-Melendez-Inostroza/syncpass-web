@@ -128,7 +128,7 @@ function EventoFormulario({
 
   return (
     <div className="flex flex-col gap-5">
-      <Link href="/" className="inline-flex min-h-11 items-center text-sm font-medium text-indigo-600 dark:text-indigo-400">
+      <Link href="/" className="inline-flex min-h-11 items-center text-sm font-medium text-blue-600 dark:text-blue-400">
         ← Volver a los eventos
       </Link>
       <h1 className="text-2xl font-bold tracking-tight">{inicial ? 'Editar evento' : 'Nuevo evento'}</h1>

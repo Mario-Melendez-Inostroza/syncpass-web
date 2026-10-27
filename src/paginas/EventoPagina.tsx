@@ -45,7 +45,7 @@ export function EventoPagina({ id }: { id: number }) {
 
   return (
     <div className="flex flex-col gap-5">
-      <Link href="/" className="inline-flex min-h-11 items-center text-sm font-medium text-indigo-600 dark:text-indigo-400">
+      <Link href="/" className="inline-flex min-h-11 items-center text-sm font-medium text-blue-600 dark:text-blue-400">
         ← Volver a los eventos
       </Link>
 
@@ -73,7 +73,7 @@ export function EventoPagina({ id }: { id: number }) {
                   type="checkbox"
                   checked={enVivo}
                   onChange={(e) => setEnVivo(e.target.checked)}
-                  className="h-5 w-5 accent-indigo-600"
+                  className="h-5 w-5 accent-blue-600"
                 />
                 En vivo (cada {REFRESCO_QUORUM_MS / 1000} s)
               </label>
