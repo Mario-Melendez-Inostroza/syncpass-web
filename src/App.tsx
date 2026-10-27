@@ -1,162 +1,81 @@
-import { useEffect, useState } from "react";
-import { useAuth } from "./hooks/useAuth";
+import type { ReactNode } from 'react';
+import { Link, Route, Router, Switch } from 'wouter';
+import { useHashLocation } from 'wouter/use-hash-location';
+import { AuthProvider } from './auth/AuthContext';
+import { useAuth } from './auth/contexto';
+import { EventoPagina } from './paginas/EventoPagina';
+import { EventosPagina } from './paginas/EventosPagina';
+import { LoginPagina } from './paginas/LoginPagina';
 
-// ==========================================
-// Subcomponentes
-// ==========================================
+/** Cabecera con el usuario y el cierre de sesión, común a las pantallas del panel. */
+function Marco({ children }: { children: ReactNode }) {
+  const { estado, cerrarSesion } = useAuth();
+  const usuario = estado.tipo === 'activa' ? estado.usuario : null;
 
-function Header() {
   return (
-    <div className="flex flex-col items-center mb-6">
-      <div className="w-16 h-16 bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 rounded-2xl flex items-center justify-center mb-4 shadow-inner">
-        <svg
-          className="w-8 h-8"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="1.75"
-            d="M12 14l9-5-9-5-9 5 9 5z"
-          />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="1.75"
-            d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 01-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
-          />
-        </svg>
-      </div>
-      <h1 className="text-3xl font-extrabold tracking-tight">Cursos App</h1>
+    <div className="min-h-screen">
+      <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-3 px-4 py-3">
+          <Link href="/" className="text-lg font-extrabold tracking-tight">
+            SyncPass <span className="font-medium text-zinc-500 dark:text-zinc-400">· Panel del coordinador</span>
+          </Link>
+          <div className="flex items-center gap-3 text-sm">
+            <span className="text-zinc-600 dark:text-zinc-300">{usuario?.nombre || usuario?.email}</span>
+            <button
+              type="button"
+              onClick={() => void cerrarSesion()}
+              className="min-h-11 rounded-xl border border-zinc-300 px-4 font-medium hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+            >
+              Cerrar sesión
+            </button>
+          </div>
+        </div>
+      </header>
+      <main className="mx-auto max-w-4xl px-4 py-6">{children}</main>
     </div>
   );
 }
 
-interface LoginFormProps {
-  credentials: { email: string; password: string };
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onLogin: (creds: { email: string; password: string }) => void;
-}
-
-function LoginForm({ credentials, onChange, onLogin }: LoginFormProps) {
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onLogin(credentials);
-  };
-
+function NoEncontrada() {
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-full max-w-sm mt-2">
-      <p className="text-sm text-zinc-400 font-medium text-center">
-        Por favor, inicia sesión
-      </p>
-
-      <div className="relative flex py-2 items-center">
-        <div className="flex-grow border-t border-zinc-800"></div>
-        <span className="flex-shrink mx-4 text-xs text-zinc-500 uppercase tracking-wider">
-          o prueba con tus datos
-        </span>
-        <div className="flex-grow border-t border-zinc-800"></div>
-      </div>
-
-      <input
-        type="email"
-        name="email"
-        value={credentials.email}
-        onChange={onChange}
-        placeholder="Correo electrónico"
-        required
-        className="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm"
-      />
-      <input
-        type="password"
-        name="password"
-        value={credentials.password}
-        onChange={onChange}
-        placeholder="Contraseña"
-        required
-        className="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm"
-      />
-      <button
-        type="submit"
-        className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl shadow-lg shadow-indigo-500/20 transition-all duration-200 cursor-pointer active:scale-95"
-      >
-        Iniciar sesión
-      </button>
-    </form>
-  );
-}
-
-interface UserDashboardProps {
-  userEmail?: string;
-  onLogout: () => void;
-}
-
-function UserDashboard({ userEmail, onLogout }: UserDashboardProps) {
-  return (
-    <div className="flex flex-col items-center gap-4 mt-2 w-full">
-      <div className="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-zinc-300">
-        Bienvenido,{" "}
-        <span className="font-semibold text-zinc-100">{userEmail}</span>
-      </div>
-      <button
-        type="button"
-        className="py-2 px-5 bg-rose-600/10 hover:bg-rose-600/20 text-rose-400 border border-rose-500/30 font-medium rounded-xl transition-all duration-200 cursor-pointer active:scale-95 text-sm"
-        onClick={onLogout}
-      >
-        Cerrar sesión
-      </button>
+    <div className="py-16 text-center">
+      <h1 className="text-2xl font-bold">Página no encontrada</h1>
+      <Link href="/" className="mt-4 inline-block font-medium text-indigo-600 dark:text-indigo-400">
+        Volver a los eventos
+      </Link>
     </div>
   );
 }
 
-// ==========================================
-// Componente Principal (App)
-// ==========================================
+/** Sin sesión se ve el login en cualquier dirección; al entrar se conserva la dirección que se pidió. */
+function Rutas() {
+  const { estado } = useAuth();
+  if (estado.tipo === 'anonimo') return <LoginPagina />;
+
+  return (
+    <Marco>
+      <Switch>
+        <Route path="/" component={EventosPagina} />
+        <Route path="/eventos/:id">
+          {(params) => {
+            const id = Number(params.id);
+            return Number.isInteger(id) && id > 0 ? <EventoPagina key={id} id={id} /> : <NoEncontrada />;
+          }}
+        </Route>
+        <Route component={NoEncontrada} />
+      </Switch>
+    </Marco>
+  );
+}
 
 export default function App() {
-  const { user, isAuthenticated, isLoading, login, logout, checkSession } =
-    useAuth();
-  const [credentials, setCredentials] = useState({ email: "", password: "" });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCredentials({ ...credentials, [e.target.name]: e.target.value });
-  };
-
-  useEffect(() => {
-    checkSession();
-  }, [checkSession]);
-
-  if (isLoading) {
-    return (
-      <main className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center justify-center p-6">
-        <section className="flex flex-col items-center text-center max-w-sm w-full">
-          <Header />
-          <p className="text-zinc-400 text-sm animate-pulse">
-            Iniciando sesión...
-          </p>
-        </section>
-      </main>
-    );
-  }
-
+  // Rutas con "#" (p. ej. /#/eventos/12): la web se puede alojar en S3 o en cualquier hosting estático sin
+  // reglas de reescritura de direcciones.
   return (
-    <main className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center justify-center p-6 selection:bg-indigo-500 selection:text-white">
-      <section className="flex flex-col items-center text-center max-w-md w-full py-12">
-        <Header />
-
-        {isAuthenticated ? (
-          <UserDashboard userEmail={user?.email} onLogout={logout} />
-        ) : (
-          <LoginForm
-            credentials={credentials}
-            onChange={handleChange}
-            onLogin={login}
-          />
-        )}
-      </section>
-    </main>
+    <Router hook={useHashLocation}>
+      <AuthProvider>
+        <Rutas />
+      </AuthProvider>
+    </Router>
   );
 }

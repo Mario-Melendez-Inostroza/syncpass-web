@@ -1,1 +1,8 @@
 @import "tailwindcss";
+
+/* Claro u oscuro según el sistema (el caso pide compatibilidad con ambos modos). */
+@layer base {
+  body {
+    @apply bg-zinc-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100;
+  }
+}

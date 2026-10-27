@@ -1,0 +1,88 @@
+import { useState, type FormEvent } from 'react';
+import { useAuth } from '../auth/contexto';
+
+/**
+ * Inicio de sesión. Al terminar bien no hay que navegar: AuthProvider guarda la sesión y la aplicación
+ * cambia de pantalla sola, conservando la dirección a la que se quería entrar.
+ */
+export function LoginPagina() {
+  const { iniciarSesion } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [cargando, setCargando] = useState(false);
+
+  async function enviar(evento: FormEvent) {
+    evento.preventDefault();
+    if (cargando) return;
+    if (!email.includes('@') || !password) {
+      setError('Escribe tu correo y tu contraseña.');
+      return;
+    }
+    setError(null);
+    setCargando(true);
+    try {
+      await iniciarSesion(email, password);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'No se pudo iniciar sesión.');
+      setCargando(false);
+    }
+  }
+
+  const campo =
+    'w-full min-h-11 rounded-xl border border-zinc-300 bg-white px-4 text-base text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100';
+
+  return (
+    <main className="flex min-h-screen items-center justify-center p-6">
+      <form onSubmit={enviar} noValidate className="flex w-full max-w-sm flex-col gap-4">
+        <header className="text-center">
+          <h1 className="text-3xl font-extrabold tracking-tight">SyncPass</h1>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Panel del coordinador</p>
+        </header>
+
+        <label className="flex flex-col gap-1 text-sm font-medium">
+          Correo
+          <input
+            type="email"
+            name="email"
+            autoComplete="username"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={cargando}
+            className={campo}
+          />
+        </label>
+
+        <label className="flex flex-col gap-1 text-sm font-medium">
+          Contraseña
+          <input
+            type="password"
+            name="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={cargando}
+            className={campo}
+          />
+        </label>
+
+        {error && (
+          <p role="alert" className="text-sm text-rose-600 dark:text-rose-400">
+            {error}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          disabled={cargando}
+          className="min-h-12 rounded-xl bg-indigo-600 px-4 font-semibold text-white hover:bg-indigo-500 disabled:opacity-60"
+        >
+          {cargando ? 'Ingresando…' : 'Iniciar sesión'}
+        </button>
+        <p className="text-center text-xs text-zinc-500 dark:text-zinc-400">
+          Solo para usuarios del grupo COORDINADOR. Los monitores usan la app Android.
+        </p>
+      </form>
+    </main>
+  );
+}
