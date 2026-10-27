@@ -130,7 +130,7 @@ function Inicio() {
       className="relative isolate overflow-hidden bg-[#f4f8ff] bg-cover bg-[60%_bottom] bg-no-repeat"
       style={{ backgroundImage: `url(${fondoHero})` }}
     >
-      <div className="mx-auto max-w-[1480px] px-5 pb-16 pt-12 sm:px-8 sm:pt-16 lg:min-h-[calc(56.25vw-88px)] lg:pb-16 lg:pt-[3.6vw]">
+      <div className="mx-auto max-w-[1480px] px-5 pb-16 pt-12 sm:px-8 sm:pt-16 lg:min-h-[calc(100vh-88px)] lg:pb-8 lg:pt-[4vh]">
         <div className="anim-aparecer max-w-[640px]">
           <p className="inline-flex items-center gap-2 rounded-full bg-[#dbe8ff]/80 px-4 py-2 text-[13px] font-bold uppercase tracking-wide text-[#0b63f6]">
             <ChartColumn className="h-4 w-4" aria-hidden />
@@ -138,7 +138,7 @@ function Inicio() {
           </p>
 
           <h1
-            className={`mt-6 text-[2.6rem] font-extrabold leading-[1.04] tracking-[-0.03em] sm:text-6xl lg:text-[clamp(3.2rem,3.95vw,4.5rem)] ${AZUL_OSCURO}`}
+            className={`mt-[2.2vh] text-[2.6rem] font-extrabold leading-[1.04] tracking-[-0.03em] sm:text-6xl lg:text-[clamp(2.8rem,min(3.95vw,6.8vh),4.5rem)] ${AZUL_OSCURO}`}
           >
             Proyectos que <br className="hidden sm:block" />
             conectan.{' '}
@@ -148,20 +148,20 @@ function Inicio() {
             </span>
           </h1>
 
-          <p className="mt-6 max-w-[560px] text-lg leading-[1.45] text-[#1d2a55] sm:text-xl lg:max-w-[max(540px,37vw)] lg:text-[clamp(1.2rem,1.26vw,1.45rem)]">
+          <p className="mt-6 max-w-[560px] text-lg leading-[1.45] text-[#1d2a55] sm:text-xl lg:max-w-[max(540px,37vw)] lg:text-[clamp(1.05rem,min(1.26vw,2.4vh),1.45rem)]">
             SyncPass es una plataforma integral para la gestión de proyectos comunitarios, registro de asistencias y
             evaluación de impacto social. Tecnología simple, segura y diseñada para generar un cambio real.
           </p>
 
           <Link
             href="/ingresar"
-            className={`mt-8 inline-flex min-h-[56px] lg:mt-[1.6vw] items-center gap-2 rounded-2xl px-10 text-lg font-semibold ${BOTON_PRINCIPAL}`}
+            className={`mt-8 inline-flex min-h-[56px] lg:mt-[2.5vh] items-center gap-2 rounded-2xl px-10 text-lg font-semibold ${BOTON_PRINCIPAL}`}
           >
             Iniciar sesión <ArrowRight className="h-5 w-5" aria-hidden />
           </Link>
         </div>
 
-        <ul className="mt-10 grid max-w-[900px] lg:mt-[2.2vw] grid-cols-2 gap-x-6 gap-y-5 sm:flex sm:flex-wrap sm:gap-x-10 xl:flex-nowrap">
+        <ul className="mt-10 grid max-w-[900px] lg:mt-[3vh] grid-cols-2 gap-x-6 gap-y-5 sm:flex sm:flex-wrap sm:gap-x-10 xl:flex-nowrap">
           {GARANTIAS.map(({ icono: Icono, color, texto }) => (
             <li key={texto[0]} className="flex items-center gap-3">
               <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-full ${color}`}>
