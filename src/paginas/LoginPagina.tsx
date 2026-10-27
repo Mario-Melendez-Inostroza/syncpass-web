@@ -92,8 +92,11 @@ export function LoginPagina() {
           {cargando ? 'Ingresando…' : 'Iniciar sesión'}
         </button>
         <p className="text-center text-xs text-zinc-500 dark:text-zinc-400">
-          Solo para usuarios del grupo COORDINADOR. Los monitores usan la app Android.
+          Para coordinadores y asistentes. Los monitores usan la app Android.
         </p>
+        <Link href="/registro" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-blue-200 text-sm font-semibold text-blue-700 hover:bg-blue-50">
+          Soy asistente y quiero crear mi cuenta
+        </Link>
         <Link href="/" className="inline-flex min-h-11 items-center justify-center text-sm font-medium text-blue-600 dark:text-blue-400">
           ← Volver al inicio
         </Link>

@@ -138,6 +138,33 @@ export interface AsistenteFila {
   creadoEnTerreno: boolean;
 }
 
+/** Mi perfil de asistente: código sintético, tipo y el id que lleva el QR. */
+export interface MiPerfil {
+  id: number;
+  codigo: string;
+  tipo: Asistente['tipo'];
+  qr: string;
+}
+
+/** Un taller visto por el asistente: cupos que quedan y si ya está inscrito. */
+export interface Taller {
+  id: number;
+  nombre: string;
+  proyecto: string;
+  fechaHoraProgramada: string;
+  recinto: string | null;
+  cuposMaximos: number | null;
+  inscritos: number;
+  cuposDisponibles: number | null;
+  inscrito: boolean;
+}
+
+export interface RegistroAsistenteEntrada {
+  email: string;
+  password: string;
+  tipo: Asistente['tipo'];
+}
+
 export interface AsistenteAlta {
   tipo: Asistente['tipo'];
   estadoInscripcion: Asistente['estadoInscripcion'];

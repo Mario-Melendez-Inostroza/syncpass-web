@@ -18,3 +18,4 @@ export const REFRESCO_QUORUM_MS = 15_000;
 /** Grupo de Cognito que puede usar este panel: Docente / Coordinador(a) de Proyecto (caso §3.1). */
 export const GRUPO_COORDINADOR = 'COORDINADOR';
 export const GRUPO_MONITOR = 'MONITOR';
+export const GRUPO_ASISTENTE = 'ASISTENTE';

@@ -4,6 +4,9 @@ import { useHashLocation } from 'wouter/use-hash-location';
 import { AuthProvider } from './auth/AuthContext';
 import { Logo } from './marca';
 import { useAuth } from './auth/contexto';
+import { esAsistente } from './auth/jwt';
+import { MiCredencialPagina, TalleresPagina } from './paginas/AsistentePaginas';
+import { RegistroPagina } from './paginas/RegistroPagina';
 import { AsistentesPagina } from './paginas/AsistentesPagina';
 import { CredencialesPagina } from './paginas/CredencialesPagina';
 import { EventoFormPagina } from './paginas/EventoFormPagina';
@@ -25,11 +28,17 @@ function Marco({ children }: { children: ReactNode }) {
   const { estado, cerrarSesion } = useAuth();
   const usuario = estado.tipo === 'activa' ? estado.usuario : null;
   const [ruta] = useHashLocation();
-  const secciones = [
-    { href: '/', texto: 'Eventos', activa: ruta === '/' || ruta.startsWith('/eventos') || ruta.startsWith('/proyectos') },
-    { href: '/asistentes', texto: 'Asistentes', activa: ruta.startsWith('/asistentes') },
-    { href: '/informes', texto: 'Informes', activa: ruta.startsWith('/informes') },
-  ];
+  const soloAsistente = usuario ? esAsistente(usuario) : false;
+  const secciones = soloAsistente
+    ? [
+        { href: '/', texto: 'Talleres', activa: ruta === '/' },
+        { href: '/credencial', texto: 'Mi credencial', activa: ruta.startsWith('/credencial') },
+      ]
+    : [
+        { href: '/', texto: 'Eventos', activa: ruta === '/' || ruta.startsWith('/eventos') || ruta.startsWith('/proyectos') },
+        { href: '/asistentes', texto: 'Asistentes', activa: ruta.startsWith('/asistentes') },
+        { href: '/informes', texto: 'Informes', activa: ruta.startsWith('/informes') },
+      ];
 
   return (
     <div className="min-h-screen">
@@ -59,7 +68,7 @@ function Marco({ children }: { children: ReactNode }) {
           <div className="flex items-center gap-3 text-sm">
             <span className="hidden text-right leading-tight sm:block">
               <span className="block font-medium text-zinc-800 dark:text-zinc-100">{usuario?.nombre || usuario?.email}</span>
-              <span className="block text-xs text-zinc-500 dark:text-zinc-400">Coordinador</span>
+              <span className="block text-xs text-zinc-500 dark:text-zinc-400">{soloAsistente ? 'Asistente' : 'Coordinador'}</span>
             </span>
             <button
               type="button"
@@ -95,8 +104,28 @@ function Rutas() {
     return (
       <Switch>
         <Route path="/" component={InicioPagina} />
+        <Route path="/registro" component={RegistroPagina} />
         <Route component={LoginPagina} />
       </Switch>
+    );
+  }
+
+  // Asistente: solo ve los talleres y su credencial; el servidor además le niega todo lo del equipo (403).
+  if (estado.usuario && esAsistente(estado.usuario)) {
+    return (
+      <Marco>
+        <Switch>
+          <Route path="/" component={TalleresPagina} />
+          <Route path="/credencial" component={MiCredencialPagina} />
+          <Route path="/ingresar">
+            <Redirect to="/" replace />
+          </Route>
+          <Route path="/registro">
+            <Redirect to="/" replace />
+          </Route>
+          <Route component={NoEncontrada} />
+        </Switch>
+      </Marco>
     );
   }
 

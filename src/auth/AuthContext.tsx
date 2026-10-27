@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { cerrarSesionServidor, iniciarSesionServidor } from '../api/endpoints';
-import { esCoordinador, esMonitor, usuarioDe } from './jwt';
+import { esAsistente, esCoordinador, esMonitor, usuarioDe } from './jwt';
 import { AccesoDenegadoError, AuthContext, type EstadoAuth } from './contexto';
 import { sesion } from './sesion';
 
 /**
- * Lee la sesión guardada. Solo cuenta como activa si el token es legible y el usuario es COORDINADOR.
+ * Lee la sesión guardada. Solo cuenta como activa si el token es legible y el usuario es COORDINADOR o ASISTENTE.
  *
  * NO se consulta /api/health para "validar" la sesión, como hacía el original: esa ruta es pública y responde
  * 200 con cualquier token, así que cualquier texto guardado daba por autenticado. La validez real la decide el
@@ -15,7 +15,7 @@ function estadoGuardado(): EstadoAuth {
   const guardada = sesion.leer();
   if (!guardada) return { tipo: 'anonimo' };
   const usuario = usuarioDe(guardada.idToken);
-  if (!usuario || !esCoordinador(usuario)) {
+  if (!usuario || !(esCoordinador(usuario) || esAsistente(usuario))) {
     sesion.limpiar();
     return { tipo: 'anonimo' };
   }
@@ -35,12 +35,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const usuario = usuarioDe(tokens.idToken);
-    if (!usuario || !esCoordinador(usuario)) {
-      // Nunca se guarda la sesión de quien no puede usar el panel.
+    if (!usuario || !(esCoordinador(usuario) || esAsistente(usuario))) {
+      // Nunca se guarda la sesión de quien no puede usar esta web.
       throw new AccesoDenegadoError(
         usuario && esMonitor(usuario)
-          ? 'Este panel es para coordinadores. Tu usuario es de monitor: usa la app Android.'
-          : 'Tu usuario no pertenece al grupo COORDINADOR. Pide a un administrador que lo agregue.',
+          ? 'Esta web es para coordinadores y asistentes. Tu usuario es de monitor: usa la app Android.'
+          : 'Tu usuario no pertenece al grupo COORDINADOR ni ASISTENTE. Pide a un administrador que lo agregue.',
       );
     }
 

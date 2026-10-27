@@ -1,4 +1,4 @@
-import { GRUPO_COORDINADOR, GRUPO_MONITOR } from '../config';
+import { GRUPO_ASISTENTE, GRUPO_COORDINADOR, GRUPO_MONITOR } from '../config';
 
 export interface Usuario {
   sub: string;
@@ -56,3 +56,4 @@ const pertenece = (usuario: Usuario, grupo: string) =>
 
 export const esCoordinador = (usuario: Usuario) => pertenece(usuario, GRUPO_COORDINADOR);
 export const esMonitor = (usuario: Usuario) => pertenece(usuario, GRUPO_MONITOR);
+export const esAsistente = (usuario: Usuario) => pertenece(usuario, GRUPO_ASISTENTE);

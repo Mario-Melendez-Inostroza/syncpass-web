@@ -9,15 +9,30 @@ import type {
   Evento,
   EventoEntrada,
   Informe,
+  MiPerfil,
   Proyecto,
   ProyectoEntrada,
+  RegistroAsistenteEntrada,
   ResumenEvento,
+  Taller,
   Tokens,
 } from './tipos';
 
 /** Inicio de sesión: el backend habla con Cognito; esta web nunca contacta a Cognito directamente. */
 export const iniciarSesionServidor = (email: string, password: string) =>
   solicitar<Tokens>('/api/auth/login', { metodo: 'POST', cuerpo: { email, password }, autenticado: false });
+
+/** Crea la cuenta de un asistente (grupo ASISTENTE, fijado por el servidor). Sin sesión previa. */
+export const registrarAsistente = (datos: RegistroAsistenteEntrada) =>
+  solicitar<MiPerfil>('/api/auth/registro-asistente', { metodo: 'POST', cuerpo: datos, autenticado: false });
+
+/** Cuenta del asistente: su credencial, los talleres próximos y la inscripción. Solo grupo ASISTENTE. */
+export const obtenerMiPerfil = () => solicitar<MiPerfil>('/api/mi/perfil');
+export const obtenerMisTalleres = () => solicitar<Taller[]>('/api/mi/talleres');
+export const inscribirseEnTaller = (eventoId: number) =>
+  solicitar<null>(`/api/mi/talleres/${encodeURIComponent(String(eventoId))}/inscripcion`, { metodo: 'POST' });
+export const cancelarInscripcion = (eventoId: number) =>
+  solicitar<null>(`/api/mi/talleres/${encodeURIComponent(String(eventoId))}/inscripcion`, { metodo: 'DELETE' });
 
 /** Revoca el refresh token en el servidor. */
 export const cerrarSesionServidor = () => solicitar<null>('/api/auth/logout', { metodo: 'POST' });
