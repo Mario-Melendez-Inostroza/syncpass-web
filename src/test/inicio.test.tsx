@@ -48,15 +48,37 @@ describe('página de inicio (sin sesión)', () => {
     for (const enlace of enlaces) expect(enlace).toHaveAttribute('href', '#/ingresar');
   });
 
-  it('Servicios: los cuatro servicios reales de la plataforma', () => {
+  it('Servicios: los seis servicios reales de la plataforma', () => {
     render(<App />);
 
     expect(screen.getByRole('heading', { level: 2, name: /Todo lo que necesitas en una sola plataforma/ })).toBeInTheDocument();
-    for (const titulo of ['Gestión de proyectos', 'Registro en terreno', 'Quórum en vivo', 'Encuestas y reportes']) {
+    for (const titulo of [
+      'Funciona sin conexión',
+      'Registro por QR',
+      'Quórum en vivo',
+      'Encuestas al instante',
+      'Reportes en Excel',
+      'Gestión de proyectos y eventos',
+    ]) {
       expect(screen.getByRole('heading', { level: 3, name: titulo })).toBeInTheDocument();
     }
   });
 
+  it('Cómo funciona: tres pasos en orden, Planifica, Registra y Mide', () => {
+    render(<App />);
+
+    expect(screen.getByRole('heading', { level: 2, name: /Del plan al informe, en tres pasos/ })).toBeInTheDocument();
+    const titulos = ['Planifica', 'Registra', 'Mide'].map((t) => screen.getByRole('heading', { level: 3, name: t }));
+    for (let i = 1; i < titulos.length; i++) {
+      expect(titulos[i - 1].compareDocumentPosition(titulos[i]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    }
+  });
+
+  it('la página no dice "datos ficticios" ni nada parecido', () => {
+    render(<App />);
+
+    expect(document.body.textContent).not.toMatch(/fictici/i);
+  });
   it('las metas son las del caso y dicen que son objetivos, no mediciones', () => {
     render(<App />);
 

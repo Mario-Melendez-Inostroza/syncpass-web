@@ -6,3 +6,24 @@
     @apply bg-zinc-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100;
   }
 }
+
+/* Animaciones de la página de inicio. Solo transform y opacity (baratas) y apagadas si el sistema pide menos movimiento. */
+@keyframes flotar {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulso {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.anim-flotar { animation: flotar 6s ease-in-out infinite; }
+.anim-flotar-lento { animation: flotar 8s ease-in-out -3s infinite; }
+.anim-aparecer { animation: aparecer 0.7s ease-out both; }
+.anim-pulso { animation: pulso 1.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .anim-flotar, .anim-flotar-lento, .anim-aparecer, .anim-pulso { animation: none; }
+}

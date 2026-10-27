@@ -28,7 +28,7 @@ Usuario ─► App Android ───────┘                             
 
 ## Qué hace
 
-**Sin sesión** (`/`): página de inicio con tres secciones —**Inicio**, **Servicios** y **Contacto**—, sin imágenes
+**Sin sesión** (`/`): página de inicio clara y luminosa con menú de tres secciones —**Inicio**, **Servicios** y **Contacto**— (más un "Cómo funciona" en tres pasos), sin imágenes
 pesadas (el fondo es CSS). "Iniciar sesión" lleva al formulario en `/#/ingresar`.
 
 > En "Servicios" se muestran las **metas del caso** (menos de 5 s por registro, más de 65 % de respuesta en encuestas,
@@ -71,7 +71,7 @@ npm run dev                 # http://localhost:5173
 | Comando | Qué hace |
 |---|---|
 | `npm run dev` | Servidor de desarrollo |
-| `npm test` | 125 pruebas (Vitest + Testing Library) |
+| `npm test` | 127 pruebas (Vitest + Testing Library) |
 | `npm run lint` | oxlint |
 | `npm run build` | Comprueba tipos (`tsc`, modo estricto) y genera `dist/` |
 
@@ -123,7 +123,7 @@ src/
 | El prefijo `/api` vivía en el `.env` | Va en el código; el `.env` lleva solo el host |
 | `npm run build` no compilaba y `strict` estaba desactivado | Compila en modo estricto |
 | `.env` no estaba en `.gitignore` | Ignorado; solo se versiona `.env.example` |
-| Sin pruebas ni limpieza de dependencias | 125 pruebas; se quitaron `oidc-client-ts` y `react-oidc-context` |
+| Sin pruebas ni limpieza de dependencias | 127 pruebas; se quitaron `oidc-client-ts` y `react-oidc-context` |
 
 ## Despliegue
 
