@@ -103,6 +103,8 @@ export const resumenDePrueba = {
   eventoId: 12,
   nombre: 'Taller de correo electrónico',
   cuposMaximos: 30,
+  quorumMinimo: 20,
+  quorumCumplido: false,
   totalMarcados: 18,
   validas: 16,
   fueraDeRadio: 1,

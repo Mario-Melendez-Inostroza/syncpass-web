@@ -6,6 +6,7 @@ import { REFRESCO_QUORUM_MS } from '../config';
 import { asistenciasACsv, descargarCsv } from '../csv';
 import { decimal, fechaHora, hora, porcentaje } from '../formato';
 import { useCarga } from '../useCarga';
+import { TarjetaComentarios, TarjetaQuorum } from './EventoExtras';
 
 function Cifra({ etiqueta, valor, nota }: { etiqueta: string; valor: string; nota?: string }) {
   return (
@@ -120,6 +121,8 @@ export function EventoPagina({ id }: { id: number }) {
             )}
           </Tarjeta>
 
+          <TarjetaQuorum resumen={r} urlEditar={`/eventos/${id}/editar`} />
+
           <Tarjeta>
             <h2 className="mb-1 text-lg font-semibold">Ubicación de las marcaciones</h2>
             <p className="mb-4 text-sm text-zinc-500 dark:text-zinc-400">
@@ -147,6 +150,8 @@ export function EventoPagina({ id }: { id: number }) {
               <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">Todavía no hay encuestas sincronizadas.</p>
             )}
           </Tarjeta>
+
+          <TarjetaComentarios eventoId={id} enVivo={enVivo} />
 
           <Tarjeta>
             <h2 className="mb-4 text-lg font-semibold">Horario de las marcaciones</h2>

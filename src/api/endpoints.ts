@@ -1,9 +1,14 @@
 import { solicitar } from './cliente';
 import type {
   AsistenciaFila,
+  AsistenteAlta,
+  AsistenteEdicion,
+  AsistenteFila,
   Catalogo,
+  Comentario,
   Evento,
   EventoEntrada,
+  Informe,
   Proyecto,
   ProyectoEntrada,
   ResumenEvento,
@@ -49,3 +54,23 @@ export const eliminarEvento = (id: number) => solicitar<null>(`/api/eventos/${id
 /** Una fila por asistencia, para el reporte CSV (caso §2.4). */
 export const obtenerAsistenciasEvento = (eventoId: number) =>
   solicitar<AsistenciaFila[]>(`/api/eventos/${idEnRuta(eventoId)}/asistencias`);
+
+/** Lista de asistentes y su gestión (caso §3.1). Solo COORDINADOR. */
+export const obtenerAsistentes = () => solicitar<AsistenteFila[]>('/api/asistentes');
+
+export const crearAsistentes = (datos: AsistenteAlta) =>
+  solicitar<AsistenteFila[]>('/api/asistentes', { metodo: 'POST', cuerpo: datos });
+
+export const actualizarAsistente = (id: number, datos: AsistenteEdicion) =>
+  solicitar<AsistenteFila>(`/api/asistentes/${idEnRuta(id)}`, { metodo: 'PUT', cuerpo: datos });
+
+/** 409 si el asistente ya fue marcado en algún evento. */
+export const eliminarAsistente = (id: number) => solicitar<null>(`/api/asistentes/${idEnRuta(id)}`, { metodo: 'DELETE' });
+
+/** Comentarios de las encuestas de un evento (caso §3.2), los más recientes primero. */
+export const obtenerComentarios = (eventoId: number) =>
+  solicitar<Comentario[]>(`/api/eventos/${idEnRuta(eventoId)}/comentarios`);
+
+/** Informe de impacto consolidado (caso §2.4). Sin proyecto, el de todos. */
+export const obtenerInforme = (proyectoId?: number) =>
+  solicitar<Informe>(proyectoId === undefined ? '/api/informes' : `/api/informes?proyectoId=${idEnRuta(proyectoId)}`);

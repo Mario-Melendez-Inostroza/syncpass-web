@@ -25,6 +25,7 @@ function servidor(sobrescribir: (l: LlamadaFetch) => Response | undefined = () =
     if (propia) return propia;
     if (l.url.endsWith('/api/sync/catalogo')) return json(sobre(catalogoDePrueba));
     if (/\/api\/eventos\/12\/resumen$/.test(l.url)) return json(sobre(resumenDePrueba));
+    if (/\/api\/eventos\/12\/comentarios$/.test(l.url)) return json(sobre([]));
     if (l.url.endsWith('/api/auth/logout')) return json(sobre(null, 'Logout exitoso'));
     return new Response(null, { status: 404 });
   });

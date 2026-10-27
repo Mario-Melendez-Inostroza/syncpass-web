@@ -53,6 +53,7 @@ function EventoFormulario({
   const [nombre, setNombre] = useState(inicial?.nombre ?? '');
   const [fechaHora, setFechaHora] = useState(aInputLocal(inicial?.fechaHoraProgramada));
   const [cupos, setCupos] = useState(inicial?.cuposMaximos != null ? String(inicial.cuposMaximos) : '');
+  const [quorum, setQuorum] = useState(inicial?.quorumMinimo != null ? String(inicial.quorumMinimo) : '');
   const [recinto, setRecinto] = useState(inicial?.recinto ?? '');
   const [latitud, setLatitud] = useState(inicial?.latitud != null ? String(inicial.latitud) : '');
   const [longitud, setLongitud] = useState(inicial?.longitud != null ? String(inicial.longitud) : '');
@@ -71,6 +72,13 @@ function EventoFormulario({
     if (cuposN !== null && (!Number.isInteger(cuposN) || cuposN < 1)) {
       return 'Los cupos deben ser un número entero mayor que 0.';
     }
+    const quorumN = numeroOpcional(quorum);
+    if (quorumN !== null && (!Number.isInteger(quorumN) || quorumN < 1)) {
+      return 'El quórum mínimo debe ser un número entero mayor que 0.';
+    }
+    if (quorumN !== null && cuposN !== null && quorumN > cuposN) {
+      return 'El quórum mínimo no puede superar los cupos máximos.';
+    }
     const lat = numeroOpcional(latitud);
     const lon = numeroOpcional(longitud);
     if (Number.isNaN(lat) || Number.isNaN(lon)) return 'La latitud y la longitud deben ser números.';
@@ -85,6 +93,7 @@ function EventoFormulario({
       nombre: nombre.trim(),
       fechaHoraProgramada: fechaIso,
       cuposMaximos: cuposN,
+      quorumMinimo: quorumN,
       recinto: textoOpcional(recinto),
       latitud: lat,
       longitud: lon,
@@ -148,12 +157,15 @@ function EventoFormulario({
           <Campo etiqueta="Nombre del evento">
             <input className={CLASE_CAMPO} value={nombre} maxLength={150} disabled={enviando} onChange={(e) => setNombre(e.target.value)} />
           </Campo>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-3">
             <Campo etiqueta="Fecha y hora" ayuda="En tu hora local.">
               <input type="datetime-local" className={CLASE_CAMPO} value={fechaHora} disabled={enviando} onChange={(e) => setFechaHora(e.target.value)} />
             </Campo>
             <Campo etiqueta="Cupos máximos (opcional)">
               <input inputMode="numeric" className={CLASE_CAMPO} value={cupos} disabled={enviando} onChange={(e) => setCupos(e.target.value)} />
+            </Campo>
+            <Campo etiqueta="Quórum mínimo (opcional)" ayuda="Cuántas personas deben asistir para dar el evento por cumplido.">
+              <input inputMode="numeric" className={CLASE_CAMPO} value={quorum} disabled={enviando} onChange={(e) => setQuorum(e.target.value)} />
             </Campo>
           </div>
           <Campo etiqueta="Recinto o dirección (opcional)">

@@ -44,6 +44,8 @@ export interface Evento {
   nombre: string;
   fechaHoraProgramada: string;
   cuposMaximos: number | null;
+  /** Mínimo de asistentes para dar por cumplido el quórum; null si el evento no define uno. */
+  quorumMinimo: number | null;
   recinto: string | null;
   latitud: number | null;
   longitud: number | null;
@@ -72,6 +74,10 @@ export interface ResumenEvento {
   eventoId: number;
   nombre: string;
   cuposMaximos: number | null;
+  /** Mínimo de asistentes para dar por cumplido el quórum; null si el evento no define uno. */
+  quorumMinimo: number | null;
+  /** true si los marcados alcanzan el mínimo; null si el evento no define mínimo. */
+  quorumCumplido: boolean | null;
   totalMarcados: number;
   validas: number;
   fueraDeRadio: number;
@@ -100,6 +106,8 @@ export interface EventoEntrada {
   nombre: string;
   fechaHoraProgramada: string;
   cuposMaximos: number | null;
+  /** Mínimo de asistentes para dar por cumplido el quórum; null si el evento no define uno. */
+  quorumMinimo: number | null;
   recinto: string | null;
   latitud: number | null;
   longitud: number | null;
@@ -116,4 +124,79 @@ export interface AsistenciaFila {
   distanciaMetros: number | null;
   satisfaccion: number | null;
   utilidad: number | null;
+}
+
+/** Una fila de la lista de asistentes. Sin datos personales: solo código, tipo e inscripción (caso §3.2 y §5.1). */
+export interface AsistenteFila {
+  id: number;
+  codigo: string;
+  tipo: Asistente['tipo'];
+  estadoInscripcion: Asistente['estadoInscripcion'];
+  /** En cuántos eventos fue marcado. */
+  totalAsistencias: number;
+  /** true si lo dio de alta un monitor en terreno desde la app. */
+  creadoEnTerreno: boolean;
+}
+
+export interface AsistenteAlta {
+  tipo: Asistente['tipo'];
+  estadoInscripcion: Asistente['estadoInscripcion'];
+  cantidad: number;
+}
+
+export interface AsistenteEdicion {
+  tipo: Asistente['tipo'];
+  estadoInscripcion: Asistente['estadoInscripcion'];
+}
+
+/** Un comentario de una encuesta. Sin código del asistente: no debe poder atribuirse a una persona. */
+export interface Comentario {
+  satisfaccion: number;
+  utilidad: number;
+  comentario: string;
+  enviadaEn: string;
+}
+
+export interface EventoInforme {
+  eventoId: number;
+  nombre: string;
+  fechaHoraProgramada: string;
+  cuposMaximos: number | null;
+  quorumMinimo: number | null;
+  quorumCumplido: boolean | null;
+  totalMarcados: number;
+  validas: number;
+  fueraDeRadio: number;
+  sinUbicacion: number;
+  encuestasRecibidas: number;
+  /** Encuestas sobre marcados, de 0 a 1; null si nadie marcó. */
+  tasaRespuesta: number | null;
+  satisfaccionPromedio: number | null;
+  utilidadPromedio: number | null;
+  comentarios: Comentario[];
+}
+
+export interface TotalesInforme {
+  eventos: number;
+  eventosConQuorumMinimo: number;
+  eventosQuorumCumplido: number;
+  totalMarcados: number;
+  /** Personas distintas que asistieron a al menos un evento. */
+  asistentesUnicos: number;
+  encuestasRecibidas: number;
+  tasaRespuesta: number | null;
+  satisfaccionPromedio: number | null;
+  utilidadPromedio: number | null;
+}
+
+export interface ProyectoInforme {
+  proyecto: Proyecto;
+  eventos: EventoInforme[];
+  totales: TotalesInforme;
+}
+
+export interface Informe {
+  generadoEn: string;
+  proyectos: ProyectoInforme[];
+  totales: TotalesInforme;
 }

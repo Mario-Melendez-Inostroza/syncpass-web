@@ -2,7 +2,7 @@
 
 Aplicación web de **SyncPass** (caso **DSY1105**, Duoc UC): una **página de inicio pública** y el **panel del
 Docente / Coordinador(a) de Proyecto**, que gestiona proyectos y eventos, supervisa el quórum en vivo y descarga el
-reporte de asistencia.
+reporte de asistencia, administra a los asistentes (con credenciales QR) y emite informes de impacto.
 
 La asistencia se registra desde la app Android (`syncpass-mobile`). Esta web habla con el backend (`syncpass-api`),
 **nunca directamente con Cognito**.
@@ -43,6 +43,11 @@ pesadas (el fondo es CSS). "Iniciar sesión" lleva al formulario en `/#/ingresar
 | **Quórum de un evento** | Asistentes marcados y cupos, dentro/fuera del radio/sin ubicación, encuestas y promedios. Se actualiza solo cada 15 s (apagable) |
 | **Reporte CSV** | "Descargar CSV": una fila por asistencia (código, tipo, inscripción, hora UTC, ubicación, distancia, satisfacción, utilidad). Separador `;` y BOM para que Excel abra bien las tildes |
 | **Proyectos y eventos** | Crear, editar y eliminar. No se elimina un proyecto con eventos ni un evento con asistencias (el servidor responde 409 y la web muestra el motivo) |
+| **Quórum mínimo** | Cada evento puede definir un mínimo de asistentes (no mayor que los cupos). El detalle del evento muestra "Quórum cumplido" o "Faltan N para el quórum" con una barra de avance. Sin mínimo definido no se da veredicto |
+| **Comentarios** | En el detalle del evento, los comentarios de las encuestas (sin quién los escribió) |
+| **Asistentes** (`/asistentes`) | Lista con filtros (código, tipo, inscripción), alta en lote (hasta 200), edición de tipo e inscripción y eliminación con confirmación (409 si ya tiene asistencias). Solo código sintético, tipo e inscripción: sin datos personales |
+| **Credenciales QR** (`/asistentes/credenciales`) | Una credencial imprimible por asistente con su QR `ASISTENTE_{id}`, el mismo formato que lee la app del monitor. El QR se dibuja como SVG desde la matriz de módulos (librería `qrcode`), sin canvas |
+| **Informes** (`/informes`) | Informe de impacto consolidado: general o por proyecto, con totales (asistentes únicos, marcaciones, encuestas y tasa de respuesta, satisfacción y utilidad ponderadas, quórums cumplidos), tabla por evento y comentarios. "Imprimir / guardar PDF" usa la impresión del navegador (el menú y los botones no salen en el papel) y "Descargar CSV" entrega una fila por evento con decimales con coma |
 
 El quórum muestra solo lo que los teléfonos **ya sincronizaron**: un monitor sin cobertura no cuenta hasta que envíe.
 El CSV no incluye datos que identifiquen a nadie: ni quién registró, ni coordenadas, ni comentarios (caso §5.1).
@@ -57,6 +62,8 @@ Rutas (con `#`, así sirve cualquier hosting estático sin reglas de reescritura
 | `/#/eventos/:id/editar` | Editar o eliminar un evento |
 | `/#/proyectos/nuevo` · `/#/proyectos/:id/editar` | Crear, editar o eliminar un proyecto |
 | `/#/proyectos/:id/eventos/nuevo` | Crear un evento en ese proyecto |
+| `/#/asistentes` · `/#/asistentes/credenciales` | Gestión de asistentes · credenciales QR para imprimir |
+| `/#/informes` | Informe de impacto (imprimir, PDF o CSV) |
 
 ## Cómo ejecutarla
 
@@ -71,7 +78,7 @@ npm run dev                 # http://localhost:5173
 | Comando | Qué hace |
 |---|---|
 | `npm run dev` | Servidor de desarrollo |
-| `npm test` | 127 pruebas (Vitest + Testing Library) |
+| `npm test` | 157 pruebas (Vitest + Testing Library) |
 | `npm run lint` | oxlint |
 | `npm run build` | Comprueba tipos (`tsc`, modo estricto) y genera `dist/` |
 
@@ -123,7 +130,7 @@ src/
 | El prefijo `/api` vivía en el `.env` | Va en el código; el `.env` lleva solo el host |
 | `npm run build` no compilaba y `strict` estaba desactivado | Compila en modo estricto |
 | `.env` no estaba en `.gitignore` | Ignorado; solo se versiona `.env.example` |
-| Sin pruebas ni limpieza de dependencias | 127 pruebas; se quitaron `oidc-client-ts` y `react-oidc-context` |
+| Sin pruebas ni limpieza de dependencias | 157 pruebas; se quitaron `oidc-client-ts` y `react-oidc-context` |
 
 ## Despliegue
 
@@ -137,12 +144,15 @@ src/
 Las pruebas verifican la lógica y las pantallas con un servidor **simulado**. Sin comprobar queda:
 
 - **El flujo completo con Cognito real y el CSV abierto en Excel** con datos reales del servidor.
-- **La apariencia en pantallas reales y en móvil**: se comprobó a ojo la página de inicio en escritorio; el panel y los
-  formularios no se miraron en el navegador.
+- **La apariencia en pantallas reales y en móvil**: se comprobó a ojo la página de inicio en escritorio; el panel, los
+  formularios, las credenciales y el informe impreso no se miraron en el navegador.
+- **Que los lectores de QR escaneen las credenciales impresas** (se verificó la generación, no la lectura con cámara).
 - Las cifras del panel reflejan el catálogo descargado; sin marcaciones sincronizadas el quórum sale en cero.
 
 ## Pendiente
 
 - Probar el panel y los formularios en el navegador contra el backend desplegado.
 - Un aviso de lint (`react/set-state-in-effect`) sobre el patrón estándar de cargar al montar.
-- Informes en PDF y gráficos: el CSV cubre el reporte básico.
+- Gráficos en el informe: hoy son tablas y cifras; el PDF sale de la impresión del navegador.
+- Horas de participación por estudiante y lista de quién asistió a cada evento (hoy solo conteos).
+- Recuperar contraseña desde la web.

@@ -4,9 +4,12 @@ import { useHashLocation } from 'wouter/use-hash-location';
 import { AuthProvider } from './auth/AuthContext';
 import { Logo } from './marca';
 import { useAuth } from './auth/contexto';
+import { AsistentesPagina } from './paginas/AsistentesPagina';
+import { CredencialesPagina } from './paginas/CredencialesPagina';
 import { EventoFormPagina } from './paginas/EventoFormPagina';
 import { EventoPagina } from './paginas/EventoPagina';
 import { EventosPagina } from './paginas/EventosPagina';
+import { InformesPagina } from './paginas/InformesPagina';
 import { InicioPagina } from './paginas/InicioPagina';
 import { LoginPagina } from './paginas/LoginPagina';
 import { ProyectoFormPagina } from './paginas/ProyectoFormPagina';
@@ -22,28 +25,35 @@ function Marco({ children }: { children: ReactNode }) {
   const { estado, cerrarSesion } = useAuth();
   const usuario = estado.tipo === 'activa' ? estado.usuario : null;
   const [ruta] = useHashLocation();
-  const enEventos = ruta === '/' || ruta.startsWith('/eventos') || ruta.startsWith('/proyectos');
+  const secciones = [
+    { href: '/', texto: 'Eventos', activa: ruta === '/' || ruta.startsWith('/eventos') || ruta.startsWith('/proyectos') },
+    { href: '/asistentes', texto: 'Asistentes', activa: ruta.startsWith('/asistentes') },
+    { href: '/informes', texto: 'Informes', activa: ruta.startsWith('/informes') },
+  ];
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/95 dark:border-zinc-800 dark:bg-zinc-900/95">
+      <header className="sticky top-0 z-20 border-b print:hidden border-zinc-200 bg-white/95 dark:border-zinc-800 dark:bg-zinc-900/95">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between gap-4 px-4">
           <div className="flex items-center gap-8">
             <Link href="/" aria-label="SyncPass, panel del coordinador">
               <Logo />
             </Link>
-            <nav aria-label="Panel" className="flex items-center text-sm">
-              <Link
-                href="/"
-                aria-current={enEventos ? 'page' : undefined}
-                className={`inline-flex min-h-11 items-center rounded-lg px-3 font-medium ${
-                  enEventos
-                    ? 'bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300'
-                    : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white'
-                }`}
-              >
-                Eventos
-              </Link>
+            <nav aria-label="Panel" className="flex items-center gap-1 text-sm">
+              {secciones.map(({ href, texto, activa }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  aria-current={activa ? 'page' : undefined}
+                  className={`inline-flex min-h-11 items-center rounded-lg px-3 font-medium ${
+                    activa
+                      ? 'bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300'
+                      : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white'
+                  }`}
+                >
+                  {texto}
+                </Link>
+              ))}
             </nav>
           </div>
           <div className="flex items-center gap-3 text-sm">
@@ -61,7 +71,7 @@ function Marco({ children }: { children: ReactNode }) {
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>
+      <main className="mx-auto max-w-5xl px-4 py-8 print:max-w-none print:p-0">{children}</main>
     </div>
   );
 }
@@ -111,6 +121,9 @@ function Rutas() {
             return id ? <EventoFormPagina key={id} proyectoInicial={id} /> : <NoEncontrada />;
           }}
         </Route>
+        <Route path="/asistentes/credenciales" component={CredencialesPagina} />
+        <Route path="/asistentes" component={AsistentesPagina} />
+        <Route path="/informes" component={InformesPagina} />
         <Route path="/eventos/:id/editar">
           {(params) => {
             const id = idValido(params.id);

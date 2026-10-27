@@ -27,3 +27,9 @@
 @media (prefers-reduced-motion: reduce) {
   .anim-flotar, .anim-flotar-lento, .anim-aparecer, .anim-pulso { animation: none; }
 }
+
+/* Impresión (credenciales QR e informe): siempre sobre blanco, sin importar el modo del sistema. */
+@media print {
+  body { background: #fff !important; color: #000 !important; }
+  @page { margin: 12mm; }
+}

@@ -31,6 +31,7 @@ const eventoEntrada: EventoEntrada = {
   nombre: 'Taller de compostaje',
   fechaHoraProgramada: '2026-11-20T18:00:00.000Z',
   cuposMaximos: 25,
+  quorumMinimo: null,
   recinto: null,
   latitud: -33.45,
   longitud: -70.66,
@@ -108,6 +109,7 @@ function servidor(sobrescribir: (l: LlamadaFetch) => Response | undefined = () =
     if (propia) return propia;
     if (l.url.endsWith('/api/sync/catalogo')) return json(sobre(catalogoDePrueba));
     if (/\/api\/eventos\/12\/resumen$/.test(l.url)) return json(sobre(resumenDePrueba));
+    if (/\/api\/eventos\/12\/comentarios$/.test(l.url)) return json(sobre([]));
     if (l.metodo === 'POST' || l.metodo === 'PUT') return json(sobre({ id: 99 }), l.metodo === 'POST' ? 201 : 200);
     if (l.metodo === 'DELETE') return json(sobre(null));
     return new Response(null, { status: 404 });
@@ -248,6 +250,7 @@ describe('formulario de evento', () => {
       nombre: 'Taller de compostaje',
       fechaHoraProgramada: new Date('2026-11-20T15:00').toISOString(),
       cuposMaximos: 25,
+      quorumMinimo: null,
       recinto: null,
       latitud: -33.45,
       longitud: -70.66,
