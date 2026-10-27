@@ -1,11 +1,12 @@
 import type { ReactNode } from 'react';
-import { Link, Route, Router, Switch } from 'wouter';
+import { Link, Redirect, Route, Router, Switch } from 'wouter';
 import { useHashLocation } from 'wouter/use-hash-location';
 import { AuthProvider } from './auth/AuthContext';
 import { useAuth } from './auth/contexto';
 import { EventoFormPagina } from './paginas/EventoFormPagina';
 import { EventoPagina } from './paginas/EventoPagina';
 import { EventosPagina } from './paginas/EventosPagina';
+import { InicioPagina } from './paginas/InicioPagina';
 import { LoginPagina } from './paginas/LoginPagina';
 import { ProyectoFormPagina } from './paginas/ProyectoFormPagina';
 
@@ -58,12 +59,24 @@ function NoEncontrada() {
 /** Sin sesión se ve el login en cualquier dirección; al entrar se conserva la dirección que se pidió. */
 function Rutas() {
   const { estado } = useAuth();
-  if (estado.tipo === 'anonimo') return <LoginPagina />;
+  // Sin sesión: la raíz es la página de inicio pública; cualquier otra dirección pide iniciar sesión.
+  if (estado.tipo === 'anonimo') {
+    return (
+      <Switch>
+        <Route path="/" component={InicioPagina} />
+        <Route component={LoginPagina} />
+      </Switch>
+    );
+  }
 
   return (
     <Marco>
       <Switch>
         <Route path="/" component={EventosPagina} />
+        {/* Quien acaba de entrar desde "Iniciar sesión" estaba en /ingresar: al panel. */}
+        <Route path="/ingresar">
+          <Redirect to="/" replace />
+        </Route>
         <Route path="/proyectos/nuevo">{() => <ProyectoFormPagina />}</Route>
         <Route path="/proyectos/:id/editar">
           {(params) => {

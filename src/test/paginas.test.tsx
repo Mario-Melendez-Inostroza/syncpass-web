@@ -33,6 +33,9 @@ function servidor(sobrescribir: (l: LlamadaFetch) => Response | undefined = () =
 beforeEach(() => ir('#/'));
 
 describe('login', () => {
+  // Sin sesión la raíz es la página de inicio; el formulario de ingreso vive en /ingresar.
+  beforeEach(() => ir('#/ingresar'));
+
   it('sin sesión se ve el login, también en una dirección interna', () => {
     ir('#/eventos/12');
     render(<App />);
@@ -123,7 +126,8 @@ describe('lista de eventos', () => {
     expect(await screen.findByText('Docente Demo')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Cerrar sesión' }));
 
-    expect(await screen.findByLabelText('Correo')).toBeInTheDocument();
+    // Al cerrar sesión se vuelve a la página de inicio pública.
+    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('Proyectos que conectan');
     expect(sesion.leer()).toBeNull();
   });
 
@@ -161,8 +165,8 @@ describe('lista de eventos', () => {
       return undefined;
     });
     render(<App />);
-
-    expect(await screen.findByLabelText('Correo')).toBeInTheDocument();
+    // Con la renovación rechazada la sesión termina y se vuelve a la página de inicio pública.
+    await waitFor(() => expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Proyectos que conectan'));
     expect(sesion.leer()).toBeNull();
   });
 });

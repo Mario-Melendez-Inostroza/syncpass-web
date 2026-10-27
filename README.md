@@ -13,6 +13,7 @@ React 19 · TypeScript (modo estricto) · Vite 8 · Tailwind 4 · wouter · Vite
 
 ## Qué hace
 
+- **Página de inicio pública** (`/`, sin sesión): landing con cabecera, hero con la imagen de fondo (`public/assets/fondo_hero.png`), "Todo lo que necesitas en una sola plataforma", "Impacto real", tecnología y contacto. "Iniciar sesión" lleva a `/#/ingresar`. Con sesión, la raíz es el panel. **Las cifras de "Impacto real" (+60 %, +85 %, -50 %) son las del diseño de referencia y son ilustrativas: no son mediciones.**
 - **Login** (correo y contraseña) y cierre de sesión. Solo entra el grupo **COORDINADOR**; un monitor recibe la
   indicación de usar la app Android y su sesión no se guarda.
 - **Eventos**: proyectos con sus eventos, ordenados por fecha.
@@ -36,7 +37,7 @@ npm run dev                 # http://localhost:5173
 | Comando | Qué hace |
 |---|---|
 | `npm run dev` | servidor de desarrollo |
-| `npm test` | 104 pruebas (Vitest + Testing Library) |
+| `npm test` | 120 pruebas (Vitest + Testing Library) |
 | `npm run lint` | oxlint |
 | `npm run build` | comprueba tipos (`tsc`, modo estricto) y genera `dist/` |
 

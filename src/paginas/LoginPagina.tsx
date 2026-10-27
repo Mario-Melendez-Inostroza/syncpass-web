@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Link } from 'wouter';
 import { useAuth } from '../auth/contexto';
 
 /**
@@ -82,6 +83,9 @@ export function LoginPagina() {
         <p className="text-center text-xs text-zinc-500 dark:text-zinc-400">
           Solo para usuarios del grupo COORDINADOR. Los monitores usan la app Android.
         </p>
+        <Link href="/" className="inline-flex min-h-11 items-center justify-center text-sm font-medium text-indigo-600 dark:text-indigo-400">
+          ← Volver al inicio
+        </Link>
       </form>
     </main>
   );
