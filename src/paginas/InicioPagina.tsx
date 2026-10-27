@@ -3,25 +3,29 @@ import {
   Check,
   ChartColumn,
   ClipboardList,
+  Database,
   FileSpreadsheet,
   FolderOpen,
   GraduationCap,
   MapPin,
   MessageSquareHeart,
   QrCode,
+  ShieldCheck,
   Smartphone,
   Users,
+  Wifi,
   WifiOff,
 } from 'lucide-react';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'wouter';
+import fondoHero from '../assets/fondo-hero.webp';
 import { Logo } from '../marca';
 
 /**
  * Página de inicio pública de SyncPass: lo que ve quien aún no inició sesión. Con sesión, la raíz es el panel.
  *
- * Diseño: clara y luminosa, con un fondo de malla de colores hecho solo con CSS (sin imágenes que cargar) y
- * tarjetas de producto dibujadas en código. Una idea por sección: qué es, cómo funciona, qué ofrece y cómo entrar.
+ * Diseño fiel a la imagen de referencia: cabecera blanca con el logo, el menú y "Iniciar sesión"; debajo, el titular
+ * sobre la imagen de fondo con ondas azules, y cuatro garantías en fila. Más abajo siguen las secciones de detalle.
  *
  * Las rutas viven en el hash (/#/ingresar), así que los enlaces internos NO pueden ser `href="#servicios"`:
  * cambiarían la ruta. Se desplaza con scrollIntoView.
@@ -29,13 +33,13 @@ import { Logo } from '../marca';
 
 const SECCIONES = [
   { id: 'inicio', texto: 'Inicio' },
-  { id: 'servicios', texto: 'Servicios' },
+  { id: 'como-funciona', texto: 'Cómo funciona' },
   { id: 'contacto', texto: 'Contacto' },
 ] as const;
 
 type IdSeccion = (typeof SECCIONES)[number]['id'];
 
-function irA(id: IdSeccion) {
+function irA(id: IdSeccion | 'servicios') {
   const destino = document.getElementById(id);
   if (id === 'inicio' || !destino) window.scrollTo?.({ top: 0, behavior: 'smooth' });
   else destino.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
@@ -65,30 +69,33 @@ function useSeccionActiva(): IdSeccion {
 }
 
 const BOTON_PRINCIPAL =
-  'bg-gradient-to-r from-[#2563eb] to-[#4f46e5] text-white shadow-[0_10px_30px_-8px_rgba(37,99,235,0.6)] hover:from-[#1d58d6] hover:to-[#4338ca]';
+  'bg-[#0b63f6] text-white shadow-[0_12px_28px_-10px_rgba(11,99,246,0.65)] transition-colors hover:bg-[#0a54d1]';
 
-const TEXTO_DEGRADADO = 'bg-gradient-to-r from-[#2563eb] via-[#7c3aed] to-[#0ea5a4] bg-clip-text text-transparent';
+const AZUL_OSCURO = 'text-[#0a1445]';
+const TEXTO_DEGRADADO = 'bg-gradient-to-r from-[#0b63f6] to-[#1a9bff] bg-clip-text text-transparent';
 
 // ------------------------------------------------------------------ cabecera
 
 function Cabecera() {
   const activa = useSeccionActiva();
   return (
-    <header className="sticky top-0 z-30 border-b border-slate-200 bg-white">
-      <div className="mx-auto flex h-[68px] max-w-6xl items-center justify-between gap-6 px-5 sm:px-8">
-        <Link href="/" aria-label="SyncPass, inicio" className="shrink-0 text-slate-900">
+    <header className="sticky top-0 z-30 bg-white">
+      <div className="mx-auto grid h-[72px] max-w-[1480px] grid-cols-[auto_1fr_auto] items-center gap-4 px-5 sm:h-[88px] sm:px-8">
+        <Link href="/" aria-label="SyncPass, inicio" className="shrink-0">
           <Logo />
         </Link>
 
-        <nav aria-label="Secciones" className="flex items-center gap-1 text-sm sm:gap-2">
+        <nav aria-label="Secciones" className="hidden items-center justify-center gap-6 text-[15px] sm:flex">
           {SECCIONES.map(({ id, texto }) => (
             <button
               key={id}
               type="button"
               onClick={() => irA(id)}
               aria-current={activa === id ? 'true' : undefined}
-              className={`min-h-11 rounded-full px-4 font-medium transition-colors ${
-                activa === id ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+              className={`relative min-h-11 px-2 font-medium transition-colors sm:px-3 ${
+                activa === id
+                  ? `${AZUL_OSCURO} font-semibold after:absolute after:inset-x-1 after:bottom-1.5 after:h-[3px] after:rounded-full after:bg-[#0b63f6]`
+                  : 'text-slate-700 hover:text-[#0b63f6]'
               }`}
             >
               {texto}
@@ -98,7 +105,7 @@ function Cabecera() {
 
         <Link
           href="/ingresar"
-          className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full px-5 text-sm font-semibold ${BOTON_PRINCIPAL}`}
+          className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 text-[15px] font-semibold sm:min-h-[52px] sm:px-7 ${BOTON_PRINCIPAL}`}
         >
           Iniciar sesión <ArrowRight className="h-4 w-4" aria-hidden />
         </Link>
@@ -107,187 +114,67 @@ function Cabecera() {
   );
 }
 
-// ------------------------------------------------------------------ ilustraciones dibujadas en código
-
-/** Un QR decorativo: tres marcas de esquina y módulos generados con una semilla fija (siempre el mismo dibujo). */
-function QrDecorativo({ tamano = 150 }: { tamano?: number }) {
-  const modulos = useMemo(() => {
-    const n = 21;
-    const celdas: [number, number][] = [];
-    let semilla = 7;
-    const azar = () => {
-      semilla = (semilla * 1103515245 + 12345) & 0x7fffffff;
-      return semilla / 0x7fffffff;
-    };
-    const esquina = (x: number, y: number) => (x < 8 && y < 8) || (x > n - 9 && y < 8) || (x < 8 && y > n - 9);
-    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (!esquina(x, y) && azar() > 0.52) celdas.push([x, y]);
-    return { n, celdas };
-  }, []);
-  const marca = (x: number, y: number) => (
-    <g key={`${x}-${y}`}>
-      <rect x={x} y={y} width={7} height={7} rx={1.4} fill="currentColor" />
-      <rect x={x + 1} y={y + 1} width={5} height={5} rx={1} fill="white" />
-      <rect x={x + 2} y={y + 2} width={3} height={3} rx={0.6} fill="currentColor" />
-    </g>
-  );
-  return (
-    <svg viewBox={`-1 -1 ${modulos.n + 2} ${modulos.n + 2}`} width={tamano} height={tamano} aria-hidden className="text-slate-900">
-      {marca(0, 0)}
-      {marca(modulos.n - 7, 0)}
-      {marca(0, modulos.n - 7)}
-      {modulos.celdas.map(([x, y]) => (
-        <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} rx={0.2} fill="currentColor" />
-      ))}
-    </svg>
-  );
-}
-
-function Anillo({ porcentaje }: { porcentaje: number }) {
-  const r = 34;
-  const c = 2 * Math.PI * r;
-  return (
-    <svg viewBox="0 0 84 84" className="h-20 w-20 -rotate-90" aria-hidden>
-      <circle cx="42" cy="42" r={r} fill="none" stroke="#e2e8f0" strokeWidth="9" />
-      <circle
-        cx="42"
-        cy="42"
-        r={r}
-        fill="none"
-        stroke="url(#anillo)"
-        strokeWidth="9"
-        strokeLinecap="round"
-        strokeDasharray={`${(c * porcentaje) / 100} ${c}`}
-      />
-      <defs>
-        <linearGradient id="anillo" x1="0" x2="1">
-          <stop offset="0" stopColor="#2563eb" />
-          <stop offset="1" stopColor="#0ea5a4" />
-        </linearGradient>
-      </defs>
-    </svg>
-  );
-}
-
-/** Composición de tarjetas del producto: escanear, sincronizar y ver el quórum. Ilustrativa. */
-function TarjetasProducto() {
-  return (
-    <div className="relative mx-auto h-[440px] w-full max-w-[460px]" aria-hidden>
-      {/* Tarjeta principal: escanear un QR */}
-      <div className="anim-flotar absolute left-2 top-4 w-[250px] rounded-3xl border border-white bg-white p-5 shadow-[0_30px_60px_-20px_rgba(30,41,99,0.35)]">
-        <div className="flex items-center gap-2 text-sm font-semibold text-slate-800">
-          <span className="grid h-8 w-8 place-items-center rounded-xl bg-blue-50 text-blue-600">
-            <QrCode className="h-4 w-4" />
-          </span>
-          Escanear QR
-        </div>
-        <div className="mt-4 grid place-items-center rounded-2xl bg-slate-50 p-4">
-          <QrDecorativo />
-        </div>
-        <div className="mt-4 flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700">
-          <Check className="h-4 w-4" strokeWidth={3} />
-          Asistencia registrada
-        </div>
-      </div>
-
-      {/* Quórum en vivo */}
-      <div className="anim-flotar-lento absolute right-0 top-28 w-[210px] rounded-3xl border border-white bg-white p-5 shadow-[0_30px_60px_-20px_rgba(30,41,99,0.35)]">
-        <p className="text-sm font-semibold text-slate-800">Quórum en vivo</p>
-        <div className="mt-3 flex items-center gap-4">
-          <div className="relative grid place-items-center">
-            <Anillo porcentaje={72} />
-            <span className="absolute rotate-0 text-sm font-bold text-slate-800">72 %</span>
-          </div>
-          <p className="text-xs leading-snug text-slate-500">de los cupos ocupados</p>
-        </div>
-      </div>
-
-      {/* Sin conexión */}
-      <div className="anim-flotar absolute bottom-12 left-0 flex items-center gap-3 rounded-2xl border border-white bg-white px-4 py-3 shadow-[0_20px_40px_-18px_rgba(30,41,99,0.35)]">
-        <span className="grid h-9 w-9 place-items-center rounded-xl bg-amber-50 text-amber-600">
-          <WifiOff className="h-4 w-4" />
-        </span>
-        <div>
-          <p className="text-sm font-semibold text-slate-800">Sin señal</p>
-          <p className="text-xs text-slate-500">Se guarda en el teléfono</p>
-        </div>
-      </div>
-
-      {/* Enviado */}
-      <div className="anim-flotar-lento absolute bottom-0 right-6 flex items-center gap-3 rounded-2xl border border-white bg-white px-4 py-3 shadow-[0_20px_40px_-18px_rgba(30,41,99,0.35)]">
-        <span className="anim-pulso grid h-9 w-9 place-items-center rounded-xl bg-blue-50 text-blue-600">
-          <Smartphone className="h-4 w-4" />
-        </span>
-        <div>
-          <p className="text-sm font-semibold text-slate-800">Sincronizado</p>
-          <p className="text-xs text-slate-500">Al volver la señal</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ------------------------------------------------------------------ inicio
+
+const GARANTIAS = [
+  { icono: ShieldCheck, color: 'bg-emerald-100 text-emerald-600', texto: ['Registro rápido', 'y seguro'] },
+  { icono: Wifi, color: 'bg-sky-100 text-[#0b63f6]', texto: ['Funciona offline', 'en terreno'] },
+  { icono: ChartColumn, color: 'bg-violet-100 text-violet-600', texto: ['Reportes en', 'tiempo real'] },
+  { icono: Database, color: 'bg-emerald-100 text-emerald-600', texto: ['Datos protegidos', 'y confiables'] },
+];
 
 function Inicio() {
   return (
-    <section id="inicio" className="relative isolate overflow-hidden">
-      {/* Fondo: malla de color y puntos, solo con degradados CSS. */}
-      <div
-        aria-hidden
-        className="absolute inset-0 -z-20 bg-[#f6f8ff] bg-[radial-gradient(45%_50%_at_8%_10%,rgba(59,130,246,0.28),transparent_70%),radial-gradient(40%_45%_at_92%_18%,rgba(139,92,246,0.24),transparent_70%),radial-gradient(45%_50%_at_70%_100%,rgba(20,184,166,0.26),transparent_70%),radial-gradient(35%_40%_at_0%_95%,rgba(251,191,36,0.16),transparent_70%)]"
-      />
-      <div
-        aria-hidden
-        className="absolute inset-0 -z-10 bg-[radial-gradient(rgba(79,70,229,0.18)_1px,transparent_1px)] [background-size:26px_26px] [mask-image:linear-gradient(to_bottom,black,transparent_85%)]"
-      />
-
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 pb-24 pt-16 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:pt-24">
-        <div className="anim-aparecer">
-          <p className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-blue-700">
-            <Users className="h-3.5 w-3.5" aria-hidden />
-            Plataforma de gestión comunitaria
+    <section
+      id="inicio"
+      className="relative isolate overflow-hidden bg-[#f4f8ff] bg-cover bg-[60%_bottom] bg-no-repeat"
+      style={{ backgroundImage: `url(${fondoHero})` }}
+    >
+      <div className="mx-auto max-w-[1480px] px-5 pb-16 pt-12 sm:px-8 sm:pt-16 lg:min-h-[calc(56.25vw-88px)] lg:pb-16 lg:pt-[3.6vw]">
+        <div className="anim-aparecer max-w-[640px]">
+          <p className="inline-flex items-center gap-2 rounded-full bg-[#dbe8ff]/80 px-4 py-2 text-[13px] font-bold uppercase tracking-wide text-[#0b63f6]">
+            <ChartColumn className="h-4 w-4" aria-hidden />
+            Gestión comunitaria inteligente
           </p>
 
-          <h1 className="mt-7 text-[42px] font-extrabold leading-[1.02] tracking-tight text-slate-900 sm:text-6xl lg:text-[68px]">
-            Proyectos que conectan. <span className={TEXTO_DEGRADADO}>Comunidades que avanzan.</span>
+          <h1
+            className={`mt-6 text-[2.6rem] font-extrabold leading-[1.04] tracking-[-0.03em] sm:text-6xl lg:text-[clamp(3.2rem,3.95vw,4.5rem)] ${AZUL_OSCURO}`}
+          >
+            Proyectos que <br className="hidden sm:block" />
+            conectan.{' '}
+            <span className={TEXTO_DEGRADADO}>
+              Comunidades <br className="hidden sm:block" />
+              que avanzan.
+            </span>
           </h1>
 
-          <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-600">
-            SyncPass ayuda a coordinar proyectos comunitarios: se registra la asistencia en terreno con el celular, aunque
-            no haya señal, y el equipo ve el quórum y la satisfacción al instante.
+          <p className="mt-6 max-w-[560px] text-lg leading-[1.45] text-[#1d2a55] sm:text-xl lg:max-w-[max(540px,37vw)] lg:text-[clamp(1.2rem,1.26vw,1.45rem)]">
+            SyncPass es una plataforma integral para la gestión de proyectos comunitarios, registro de asistencias y
+            evaluación de impacto social. Tecnología simple, segura y diseñada para generar un cambio real.
           </p>
 
-          <div className="mt-9 flex flex-wrap items-center gap-4">
-            <Link
-              href="/ingresar"
-              className={`inline-flex min-h-[52px] items-center gap-2 rounded-full px-8 text-base font-semibold ${BOTON_PRINCIPAL}`}
-            >
-              Iniciar sesión <ArrowRight className="h-4 w-4" aria-hidden />
-            </Link>
-            <button
-              type="button"
-              onClick={() => irA('servicios')}
-              className="inline-flex min-h-[52px] items-center rounded-full border border-slate-300 bg-white/70 px-8 text-base font-semibold text-slate-800 transition-colors hover:bg-white"
-            >
-              Ver servicios
-            </button>
-          </div>
-
-          <ul className="mt-10 flex flex-wrap gap-x-8 gap-y-3 text-sm font-medium text-slate-600">
-            {[
-              { icono: QrCode, texto: 'Registro por QR' },
-              { icono: WifiOff, texto: 'Funciona sin conexión' },
-              { icono: FileSpreadsheet, texto: 'Reportes en Excel' },
-            ].map(({ icono: Icono, texto }) => (
-              <li key={texto} className="flex items-center gap-2">
-                <Icono className="h-4 w-4 text-blue-600" aria-hidden />
-                {texto}
-              </li>
-            ))}
-          </ul>
+          <Link
+            href="/ingresar"
+            className={`mt-8 inline-flex min-h-[56px] lg:mt-[1.6vw] items-center gap-2 rounded-2xl px-10 text-lg font-semibold ${BOTON_PRINCIPAL}`}
+          >
+            Iniciar sesión <ArrowRight className="h-5 w-5" aria-hidden />
+          </Link>
         </div>
 
-        <TarjetasProducto />
+        <ul className="mt-10 grid max-w-[900px] lg:mt-[2.2vw] grid-cols-2 gap-x-6 gap-y-5 sm:flex sm:flex-wrap sm:gap-x-10 xl:flex-nowrap">
+          {GARANTIAS.map(({ icono: Icono, color, texto }) => (
+            <li key={texto[0]} className="flex items-center gap-3">
+              <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-full ${color}`}>
+                <Icono className="h-6 w-6" aria-hidden />
+              </span>
+              <span className="text-[15px] font-medium leading-snug text-[#1d2a55]">
+                {texto[0]}
+                <br />
+                {texto[1]}
+              </span>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
@@ -318,11 +205,11 @@ const PASOS = [
 
 function ComoFunciona() {
   return (
-    <section aria-labelledby="como-funciona" className="border-t border-slate-200/70 bg-white">
+    <section id="como-funciona" aria-labelledby="como-funciona-titulo" className="scroll-mt-16 bg-white">
       <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">Cómo funciona</p>
-          <h2 id="como-funciona" className="mt-3 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+          <h2 id="como-funciona-titulo" className="mt-3 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
             Del plan al informe, en tres pasos
           </h2>
         </div>
@@ -330,7 +217,7 @@ function ComoFunciona() {
           {PASOS.map(({ numero, icono: Icono, titulo, texto }) => (
             <li key={numero} className="relative">
               <div className="flex items-center gap-4">
-                <span className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-[#2563eb] to-[#7c3aed] text-white shadow-lg shadow-blue-500/30">
+                <span className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-[#0b63f6] to-[#1a9bff] text-white shadow-lg shadow-blue-500/30">
                   <Icono className="h-6 w-6" aria-hidden />
                 </span>
                 <span className="text-5xl font-extrabold text-slate-200" aria-hidden>
@@ -367,7 +254,7 @@ function Icono({ icono: I, color }: { icono: typeof Check; color: string }) {
 
 function Servicios() {
   return (
-    <section id="servicios" className="scroll-mt-16 bg-[#f6f8ff]">
+    <section id="servicios" className="scroll-mt-16 bg-[#f4f8ff]">
       <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">Servicios</p>
@@ -475,7 +362,7 @@ function Metas() {
         <ul className="mt-12 grid gap-px overflow-hidden rounded-3xl border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
           {METAS.map(({ valor, texto, antes }) => (
             <li key={valor} className="bg-slate-900 p-7">
-              <p className="bg-gradient-to-r from-[#60a5fa] via-[#a78bfa] to-[#2dd4bf] bg-clip-text text-4xl font-extrabold tracking-tight text-transparent">
+              <p className="bg-gradient-to-r from-[#60a5fa] to-[#22d3ee] bg-clip-text text-4xl font-extrabold tracking-tight text-transparent">
                 {valor}
               </p>
               <p className="mt-3 text-slate-100">{texto}</p>
@@ -497,9 +384,9 @@ function Contacto() {
   return (
     <section id="contacto" className="scroll-mt-16 bg-white">
       <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
-        <div className="relative isolate overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#1d4ed8] via-[#4f46e5] to-[#7c3aed] p-8 text-white sm:p-14">
+        <div className="relative isolate overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#0a3fd1] via-[#0b63f6] to-[#1a9bff] p-8 text-white sm:p-14">
           <div aria-hidden className="absolute -right-16 -top-16 -z-10 h-72 w-72 rounded-full bg-white/10" />
-          <div aria-hidden className="absolute -bottom-24 left-1/3 -z-10 h-72 w-72 rounded-full bg-teal-300/20" />
+          <div aria-hidden className="absolute -bottom-24 left-1/3 -z-10 h-72 w-72 rounded-full bg-cyan-300/25" />
 
           <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
             <div>
@@ -537,8 +424,8 @@ function Contacto() {
       </div>
 
       <footer className="border-t border-slate-200 px-5 py-8 text-center text-xs text-slate-500">
-        <span className="inline-block text-slate-900">
-          <Logo tamano="pequeno" />
+        <span className="inline-block">
+          <Logo tamano="grande" />
         </span>
         <p className="mt-3">SyncPass · Gestión de proyectos comunitarios</p>
       </footer>
@@ -550,7 +437,7 @@ function Contacto() {
 
 export function InicioPagina() {
   return (
-    <div className="min-h-screen bg-white text-slate-900 [font-family:Inter,'Segoe_UI',system-ui,sans-serif]">
+    <div className="min-h-screen bg-white text-slate-900">
       <Cabecera />
       <main>
         <Inicio />

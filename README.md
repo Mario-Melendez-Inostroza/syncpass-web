@@ -28,10 +28,13 @@ Usuario ─► App Android ───────┘                             
 
 ## Qué hace
 
-**Sin sesión** (`/`): página de inicio clara y luminosa con menú de tres secciones —**Inicio**, **Servicios** y **Contacto**— (más un "Cómo funciona" en tres pasos), sin imágenes
-pesadas (el fondo es CSS). "Iniciar sesión" lleva al formulario en `/#/ingresar`.
+**Sin sesión** (`/`): página de inicio hecha a partir de la imagen de referencia del equipo: cabecera blanca con el logo, el menú
+—**Inicio**, **Cómo funciona** y **Contacto**— y "Iniciar sesión"; el titular sobre el fondo de ondas azules y cuatro
+garantías en fila. Más abajo siguen "Cómo funciona" (tres pasos), "Servicios", las metas y el contacto. "Iniciar sesión"
+lleva al formulario en `/#/ingresar`. La web usa solo **modo claro** y la tipografía Plus Jakarta Sans (paquete local,
+sin pedir nada a internet). Las imágenes de la marca están en `src/assets` (`logo-*.png`, `fondo-hero.webp`).
 
-> En "Servicios" se muestran las **metas del caso** (menos de 5 s por registro, más de 65 % de respuesta en encuestas,
+> En la sección de metas se muestran las **metas del caso** (menos de 5 s por registro, más de 65 % de respuesta en encuestas,
 > 80 % menos horas de digitación, 100 % operativa sin conexión). Son **objetivos del proyecto, todavía no mediciones**, y
 > la página lo dice.
 
@@ -144,8 +147,8 @@ src/
 Las pruebas verifican la lógica y las pantallas con un servidor **simulado**. Sin comprobar queda:
 
 - **El flujo completo con Cognito real y el CSV abierto en Excel** con datos reales del servidor.
-- **La apariencia en pantallas reales y en móvil**: se comprobó a ojo la página de inicio en escritorio; el panel, los
-  formularios, las credenciales y el informe impreso no se miraron en el navegador.
+- **La apariencia en pantallas reales y en móvil**: se comprobaron a ojo, en escritorio, la página de inicio, el ingreso y las pantallas
+  principales del panel (con datos de prueba simulados); no se miraron el móvil ni el informe impreso.
 - **Que los lectores de QR escaneen las credenciales impresas** (se verificó la generación, no la lectura con cámara).
 - Las cifras del panel reflejan el catálogo descargado; sin marcaciones sincronizadas el quórum sale en cero.
 

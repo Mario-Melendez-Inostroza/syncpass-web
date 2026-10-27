@@ -393,7 +393,7 @@ describe('credenciales QR', () => {
     render(<App />);
 
     expect(await screen.findByRole('img', { name: 'Código QR de INS-000001' })).toBeInTheDocument();
-    expect(screen.getAllByRole('img')).toHaveLength(2); // solo inscritos por defecto
+    expect(screen.getAllByRole('img', { name: /Código QR/ })).toHaveLength(2); // solo inscritos por defecto
     expect(screen.queryByRole('img', { name: /TER-/ })).not.toBeInTheDocument();
     // El dibujo no es vacío: tiene módulos negros.
     expect(screen.getByRole('img', { name: 'Código QR de INS-000001' }).querySelector('path')?.getAttribute('d')).toMatch(/^M\d+ \d+h1v1h-1z/);
@@ -408,9 +408,9 @@ describe('credenciales QR', () => {
     expect(primero).not.toBe(segundo);
 
     await userEvent.click(screen.getByLabelText('Solo inscritos'));
-    expect(screen.getAllByRole('img')).toHaveLength(3);
+    expect(screen.getAllByRole('img', { name: /Código QR/ })).toHaveLength(3);
     await userEvent.selectOptions(screen.getByLabelText('Tipo'), 'ESTUDIANTE');
-    expect(screen.getAllByRole('img')).toHaveLength(1);
+    expect(screen.getAllByRole('img', { name: /Código QR/ })).toHaveLength(1);
   });
 
   it('imprime con el botón y no deja imprimir si no hay credenciales', async () => {

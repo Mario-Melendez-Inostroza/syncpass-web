@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 export function Tarjeta({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <section
-      className={`rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 ${className}`}
+      className={`rounded-2xl border border-blue-100 bg-white p-5 shadow-[0_10px_30px_-20px_rgba(11,60,160,0.35)] dark:border-zinc-800 dark:bg-zinc-900 ${className}`}
     >
       {children}
     </section>
@@ -77,13 +77,13 @@ export function Barra({
 
 /** Estilo de los campos de formulario: el mismo de la pantalla de inicio de sesión. */
 export const CLASE_CAMPO =
-  'w-full min-h-11 rounded-xl border border-zinc-300 bg-white px-4 text-base text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100';
+  'w-full min-h-11 rounded-xl border border-slate-300 bg-white px-4 text-base text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100';
 
 export const CLASE_BOTON_PRIMARIO =
-  'min-h-12 rounded-xl bg-blue-600 px-4 font-semibold text-white hover:bg-blue-500 disabled:opacity-60';
+  'min-h-12 rounded-xl bg-blue-600 px-5 font-semibold text-white shadow-[0_10px_24px_-12px_rgba(11,99,246,0.7)] transition-colors hover:bg-blue-700 disabled:opacity-60';
 
 export const CLASE_BOTON_SECUNDARIO =
-  'min-h-11 rounded-xl border border-zinc-300 px-4 font-medium hover:bg-zinc-100 disabled:opacity-60 dark:border-zinc-700 dark:hover:bg-zinc-800';
+  'min-h-11 rounded-xl border border-blue-200 bg-white px-4 font-medium text-blue-700 transition-colors hover:bg-blue-50 disabled:opacity-60 dark:border-zinc-700 dark:bg-transparent dark:text-zinc-100 dark:hover:bg-zinc-800';
 
 export const CLASE_BOTON_PELIGRO =
   'min-h-11 rounded-xl border border-rose-400 px-4 font-medium text-rose-700 hover:bg-rose-50 disabled:opacity-60 dark:border-rose-500/50 dark:text-rose-300 dark:hover:bg-rose-500/10';

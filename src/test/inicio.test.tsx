@@ -17,18 +17,21 @@ describe('página de inicio (sin sesión)', () => {
     render(<App />);
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Proyectos que conectan. Comunidades que avanzan.');
-    expect(screen.getByText(/ayuda a coordinar proyectos comunitarios/i)).toBeInTheDocument();
-    expect(screen.getByText('Plataforma de gestión comunitaria')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Ver servicios' })).toBeInTheDocument();
+    expect(screen.getByText(/plataforma integral para la gestión de proyectos comunitarios/i)).toBeInTheDocument();
+    expect(screen.getByText('Gestión comunitaria inteligente')).toBeInTheDocument();
+    // Las cuatro garantías de la imagen de referencia.
+    for (const texto of [/Registro rápido\s*y seguro/, /Funciona offline\s*en terreno/, /Reportes en\s*tiempo real/, /Datos protegidos\s*y confiables/]) {
+      expect(screen.getByText(texto)).toBeInTheDocument();
+    }
     // No es el formulario de ingreso.
     expect(screen.queryByLabelText('Correo')).not.toBeInTheDocument();
   });
 
-  it('el menú tiene solo tres secciones: Inicio, Servicios y Contacto', () => {
+  it('el menú tiene solo tres secciones: Inicio, Cómo funciona y Contacto', () => {
     render(<App />);
 
     const nav = within(screen.getByRole('navigation', { name: 'Secciones' }));
-    expect(nav.getAllByRole('button').map((b) => b.textContent)).toEqual(['Inicio', 'Servicios', 'Contacto']);
+    expect(nav.getAllByRole('button').map((b) => b.textContent)).toEqual(['Inicio', 'Cómo funciona', 'Contacto']);
     expect(screen.getByRole('link', { name: 'SyncPass, inicio' })).toHaveAttribute('href', '#/');
   });
 
@@ -37,7 +40,7 @@ describe('página de inicio (sin sesión)', () => {
 
     const nav = within(screen.getByRole('navigation', { name: 'Secciones' }));
     expect(nav.getByRole('button', { name: 'Inicio' })).toHaveAttribute('aria-current', 'true');
-    expect(nav.getByRole('button', { name: 'Servicios' })).not.toHaveAttribute('aria-current');
+    expect(nav.getByRole('button', { name: 'Cómo funciona' })).not.toHaveAttribute('aria-current');
   });
 
   it('todos los "Iniciar sesión" llevan al formulario de ingreso', () => {
@@ -89,12 +92,13 @@ describe('página de inicio (sin sesión)', () => {
     expect(screen.queryByText('+85%')).not.toBeInTheDocument();
   });
 
-  it('no usa imágenes: ni el portátil ni los celulares del diseño anterior', () => {
+  it('la única imagen de contenido es el logo y el hero usa la imagen de fondo de la marca', () => {
     const { container } = render(<App />);
 
-    expect(container.querySelectorAll('img')).toHaveLength(0);
-    const estilos = [...container.querySelectorAll<HTMLElement>('[style]')].map((e) => e.getAttribute('style'));
-    expect(estilos.join(' ')).not.toContain('.png');
+    const imagenes = [...container.querySelectorAll('img')];
+    expect(imagenes.length).toBeGreaterThan(0);
+    for (const img of imagenes) expect(img).toHaveAttribute('alt', 'SyncPass');
+    expect(document.getElementById('inicio')!.getAttribute('style')).toContain('background-image');
   });
 
   it('Contacto: explica cómo obtener una cuenta y no publica datos personales', () => {
@@ -119,17 +123,6 @@ describe('página de inicio (sin sesión)', () => {
     expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
   });
 
-  it('"Ver servicios" también desplaza a la sección de servicios', async () => {
-    const desplazar = vi.fn();
-    Element.prototype.scrollIntoView = desplazar;
-    render(<App />);
-
-    await userEvent.click(screen.getByRole('button', { name: 'Ver servicios' }));
-
-    expect(desplazar).toHaveBeenCalledTimes(1);
-    expect(window.location.hash).toBe('#/');
-  });
-
   it('no queda ningún enlace con ancla suelta (#seccion) que rompería el enrutado por hash', () => {
     const { container } = render(<App />);
 
@@ -151,11 +144,11 @@ describe('página de inicio (sin sesión)', () => {
     );
     render(<App />);
 
-    const servicios = document.getElementById('servicios')!;
-    avisar([{ target: servicios, isIntersecting: true, intersectionRatio: 0.8 }]);
+    const seccion = document.getElementById('como-funciona')!;
+    avisar([{ target: seccion, isIntersecting: true, intersectionRatio: 0.8 }]);
 
     const nav = within(screen.getByRole('navigation', { name: 'Secciones' }));
-    await waitFor(() => expect(nav.getByRole('button', { name: 'Servicios' })).toHaveAttribute('aria-current', 'true'));
+    await waitFor(() => expect(nav.getByRole('button', { name: 'Cómo funciona' })).toHaveAttribute('aria-current', 'true'));
     expect(nav.getByRole('button', { name: 'Inicio' })).not.toHaveAttribute('aria-current');
   });
 });

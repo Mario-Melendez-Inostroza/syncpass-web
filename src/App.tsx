@@ -33,8 +33,8 @@ function Marco({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-20 border-b print:hidden border-zinc-200 bg-white/95 dark:border-zinc-800 dark:bg-zinc-900/95">
-        <div className="mx-auto flex h-16 max-w-5xl items-center justify-between gap-4 px-4">
+      <header className="sticky top-0 z-20 border-b border-blue-100 bg-white shadow-[0_8px_24px_-20px_rgba(11,60,160,0.5)] print:hidden dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="mx-auto flex h-[76px] max-w-6xl items-center justify-between gap-4 px-4">
           <div className="flex items-center gap-8">
             <Link href="/" aria-label="SyncPass, panel del coordinador">
               <Logo />
@@ -45,10 +45,10 @@ function Marco({ children }: { children: ReactNode }) {
                   key={href}
                   href={href}
                   aria-current={activa ? 'page' : undefined}
-                  className={`inline-flex min-h-11 items-center rounded-lg px-3 font-medium ${
+                  className={`relative inline-flex min-h-11 items-center px-3 font-medium ${
                     activa
-                      ? 'bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300'
-                      : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white'
+                      ? 'font-semibold text-[#0a1445] after:absolute after:inset-x-2 after:-bottom-[15px] after:h-[3px] after:rounded-full after:bg-blue-600 dark:text-white'
+                      : 'text-slate-600 hover:text-blue-600 dark:text-zinc-300 dark:hover:text-white'
                   }`}
                 >
                   {texto}
@@ -64,14 +64,14 @@ function Marco({ children }: { children: ReactNode }) {
             <button
               type="button"
               onClick={() => void cerrarSesion()}
-              className="min-h-11 rounded-xl border border-zinc-300 px-4 font-medium hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+              className="min-h-11 rounded-xl border border-blue-200 px-4 font-medium text-blue-700 hover:bg-blue-50 dark:border-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-800"
             >
               Cerrar sesión
             </button>
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-5xl px-4 py-8 print:max-w-none print:p-0">{children}</main>
+      <main className="mx-auto max-w-6xl px-4 py-8 print:max-w-none print:p-0">{children}</main>
     </div>
   );
 }

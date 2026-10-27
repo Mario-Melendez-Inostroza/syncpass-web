@@ -1,22 +1,19 @@
-import { Check } from 'lucide-react';
+import logoCabecera from './assets/logo-cabecera.png';
+import logoCompleto from './assets/logo-completo.png';
 
 /**
- * Logo de SyncPass: un check dentro de un cuadrado azul y el nombre con "Pass" en azul. Hereda el color del texto
- * (`currentColor`) para "Sync", así sirve igual sobre la página de inicio oscura y sobre el panel claro u oscuro.
+ * Logo de SyncPass (imagen de la marca). `normal` es el de las cabeceras, sin lema; `grande` lleva el lema
+ * "Gestión que genera impacto". En modo oscuro va sobre una pastilla blanca, porque el logo está pensado para fondo claro.
  */
-export function Logo({ tamano = 'normal' }: { tamano?: 'normal' | 'pequeno' }) {
-  const caja = tamano === 'normal' ? 'h-9 w-9 rounded-xl' : 'h-7 w-7 rounded-lg';
-  const texto = tamano === 'normal' ? 'text-[26px]' : 'text-xl';
+export function Logo({ tamano = 'normal' }: { tamano?: 'normal' | 'pequeno' | 'grande' }) {
+  const grande = tamano === 'grande';
+  const alto = tamano === 'normal' ? 'h-12 sm:h-[68px]' : tamano === 'pequeno' ? 'h-9' : 'h-24';
   return (
-    <span className="inline-flex items-center gap-2.5">
-      <span
-        className={`grid ${caja} place-items-center bg-gradient-to-b from-[#3a86ff] to-[#1450e6] shadow-[0_0_20px_rgba(37,99,235,0.45)]`}
-      >
-        <Check className="h-3/5 w-3/5 text-white" strokeWidth={3.5} aria-hidden />
-      </span>
-      <span className={`${texto} font-extrabold leading-none tracking-tight`}>
-        Sync<span className="text-[#2a8cff]">Pass</span>
-      </span>
-    </span>
+    <img
+      src={grande ? logoCompleto : logoCabecera}
+      alt="SyncPass"
+      className={`${alto} w-auto dark:rounded-lg dark:bg-white dark:px-2`}
+      draggable={false}
+    />
   );
 }
