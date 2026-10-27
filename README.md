@@ -159,3 +159,13 @@ Las pruebas verifican la lógica y las pantallas con un servidor **simulado**. S
 - Gráficos en el informe: hoy son tablas y cifras; el PDF sale de la impresión del navegador.
 - Horas de participación por estudiante y lista de quién asistió a cada evento (hoy solo conteos).
 - Recuperar contraseña desde la web.
+
+## Equipo
+
+Proyecto del curso DSY1105 · Desarrollo de Aplicaciones Móviles · Duoc UC.
+
+| Integrante | GitHub | Aporte en este repositorio |
+|---|---|---|
+| Mario Meléndez | [Mario-Melendez-Inostroza](https://github.com/Mario-Melendez-Inostroza) | Desarrollo e integración del sistema |
+| _(nombre completo)_ | [bx1423](https://github.com/bx1423) | _(completar: qué aportó o revisó)_ |
+| _(nombre completo)_ | [Monnacohu](https://github.com/Monnacohu) | _(completar: qué aportó o revisó)_ |
