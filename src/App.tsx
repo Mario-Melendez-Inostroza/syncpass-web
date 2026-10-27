@@ -3,9 +3,17 @@ import { Link, Route, Router, Switch } from 'wouter';
 import { useHashLocation } from 'wouter/use-hash-location';
 import { AuthProvider } from './auth/AuthContext';
 import { useAuth } from './auth/contexto';
+import { EventoFormPagina } from './paginas/EventoFormPagina';
 import { EventoPagina } from './paginas/EventoPagina';
 import { EventosPagina } from './paginas/EventosPagina';
 import { LoginPagina } from './paginas/LoginPagina';
+import { ProyectoFormPagina } from './paginas/ProyectoFormPagina';
+
+/** Un id de la dirección solo vale si es un entero positivo; si no, la página no existe. */
+function idValido(texto: string | undefined): number | null {
+  const id = Number(texto);
+  return Number.isInteger(id) && id > 0 ? id : null;
+}
 
 /** Cabecera con el usuario y el cierre de sesión, común a las pantallas del panel. */
 function Marco({ children }: { children: ReactNode }) {
@@ -56,6 +64,25 @@ function Rutas() {
     <Marco>
       <Switch>
         <Route path="/" component={EventosPagina} />
+        <Route path="/proyectos/nuevo">{() => <ProyectoFormPagina />}</Route>
+        <Route path="/proyectos/:id/editar">
+          {(params) => {
+            const id = idValido(params.id);
+            return id ? <ProyectoFormPagina key={id} id={id} /> : <NoEncontrada />;
+          }}
+        </Route>
+        <Route path="/proyectos/:id/eventos/nuevo">
+          {(params) => {
+            const id = idValido(params.id);
+            return id ? <EventoFormPagina key={id} proyectoInicial={id} /> : <NoEncontrada />;
+          }}
+        </Route>
+        <Route path="/eventos/:id/editar">
+          {(params) => {
+            const id = idValido(params.id);
+            return id ? <EventoFormPagina key={id} id={id} /> : <NoEncontrada />;
+          }}
+        </Route>
         <Route path="/eventos/:id">
           {(params) => {
             const id = Number(params.id);

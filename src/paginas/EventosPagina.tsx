@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Link } from 'wouter';
 import { obtenerCatalogo } from '../api/endpoints';
 import type { Evento, Proyecto } from '../api/tipos';
-import { Cargando, ErrorCaja, Tarjeta } from '../componentes';
+import { CLASE_BOTON_SECUNDARIO, Cargando, ErrorCaja, Tarjeta } from '../componentes';
 import { fechaHora, hora, soloFecha } from '../formato';
 import { useCarga } from '../useCarga';
 
@@ -42,13 +42,16 @@ export function EventosPagina() {
             Elige un evento para ver su quórum y la satisfacción de los asistentes.
           </p>
         </div>
-        <div className="flex items-center gap-3 text-sm text-zinc-500 dark:text-zinc-400">
+        <div className="flex flex-wrap items-center gap-3 text-sm text-zinc-500 dark:text-zinc-400">
           {actualizadoEn && <span>Actualizado a las {hora(actualizadoEn)}</span>}
+          <Link href="/proyectos/nuevo" className={`${CLASE_BOTON_SECUNDARIO} inline-flex items-center text-zinc-900 dark:text-zinc-100`}>
+            Nuevo proyecto
+          </Link>
           <button
             type="button"
             onClick={() => void recargar()}
             disabled={cargando}
-            className="min-h-11 rounded-xl border border-zinc-300 px-4 font-medium hover:bg-zinc-100 disabled:opacity-60 dark:border-zinc-700 dark:hover:bg-zinc-800"
+            className={CLASE_BOTON_SECUNDARIO}
           >
             Actualizar
           </button>
@@ -62,7 +65,7 @@ export function EventosPagina() {
         <Tarjeta>
           <p className="font-medium">Todavía no hay proyectos ni eventos.</p>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Cuando se carguen en el servidor, aparecerán aquí.
+            Crea el primero con «Nuevo proyecto»; después podrás agregarle eventos.
           </p>
         </Tarjeta>
       )}
@@ -80,6 +83,15 @@ export function EventosPagina() {
             <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-800 dark:bg-indigo-500/20 dark:text-indigo-200">
               {ESTADOS_PROYECTO[proyecto.estado] ?? proyecto.estado}
             </span>
+          </div>
+
+          <div className="mt-3 flex flex-wrap gap-4 text-sm font-medium">
+            <Link href={`/proyectos/${proyecto.id}/editar`} className="inline-flex min-h-11 items-center text-indigo-600 dark:text-indigo-400">
+              Editar proyecto
+            </Link>
+            <Link href={`/proyectos/${proyecto.id}/eventos/nuevo`} className="inline-flex min-h-11 items-center text-indigo-600 dark:text-indigo-400">
+              Nuevo evento
+            </Link>
           </div>
 
           {eventos.length === 0 ? (

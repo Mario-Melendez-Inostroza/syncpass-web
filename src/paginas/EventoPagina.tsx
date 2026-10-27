@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'wouter';
-import { obtenerResumen } from '../api/endpoints';
-import { Barra, Cargando, ErrorCaja, Tarjeta } from '../componentes';
+import { obtenerAsistenciasEvento, obtenerResumen } from '../api/endpoints';
+import { Barra, CLASE_BOTON_SECUNDARIO, Cargando, ErrorCaja, Tarjeta } from '../componentes';
 import { REFRESCO_QUORUM_MS } from '../config';
+import { asistenciasACsv, descargarCsv } from '../csv';
 import { decimal, fechaHora, hora, porcentaje } from '../formato';
 import { useCarga } from '../useCarga';
 
@@ -22,9 +23,25 @@ function Cifra({ etiqueta, valor, nota }: { etiqueta: string; valor: string; not
  */
 export function EventoPagina({ id }: { id: number }) {
   const [enVivo, setEnVivo] = useState(true);
+  const [descargando, setDescargando] = useState(false);
+  const [errorCsv, setErrorCsv] = useState<string | null>(null);
   const { datos: r, error, cargando, recargar, actualizadoEn } = useCarga(() => obtenerResumen(id), {
     cadaMs: enVivo ? REFRESCO_QUORUM_MS : null,
   });
+
+  /** Reporte de asistencia (caso §2.4): se pide al servidor, se arma el CSV aquí y se descarga. */
+  async function descargar(nombreEvento: string) {
+    setErrorCsv(null);
+    setDescargando(true);
+    try {
+      const filas = await obtenerAsistenciasEvento(id);
+      descargarCsv(`asistencia-evento-${id}.csv`, asistenciasACsv(filas));
+    } catch (e) {
+      setErrorCsv(e instanceof Error ? e.message : `No se pudo generar el reporte de «${nombreEvento}».`);
+    } finally {
+      setDescargando(false);
+    }
+  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -60,17 +77,22 @@ export function EventoPagina({ id }: { id: number }) {
                 />
                 En vivo (cada {REFRESCO_QUORUM_MS / 1000} s)
               </label>
-              <button
-                type="button"
-                onClick={() => void recargar()}
-                disabled={cargando}
-                className="min-h-11 rounded-xl border border-zinc-300 px-4 font-medium hover:bg-zinc-100 disabled:opacity-60 dark:border-zinc-700 dark:hover:bg-zinc-800"
-              >
+              <button type="button" onClick={() => void recargar()} disabled={cargando} className={CLASE_BOTON_SECUNDARIO}>
                 Actualizar
               </button>
               <span className="text-zinc-500 dark:text-zinc-400">Actualizado a las {hora(actualizadoEn)}</span>
             </div>
           </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="button" onClick={() => void descargar(r.nombre)} disabled={descargando} className={CLASE_BOTON_SECUNDARIO}>
+              {descargando ? 'Preparando…' : 'Descargar CSV'}
+            </button>
+            <Link href={`/eventos/${id}/editar`} className={`${CLASE_BOTON_SECUNDARIO} inline-flex items-center`}>
+              Editar evento
+            </Link>
+          </div>
+          {errorCsv && <ErrorCaja error={new Error(errorCsv)} />}
 
           <Tarjeta>
             <h2 className="mb-4 text-lg font-semibold">Asistencia</h2>

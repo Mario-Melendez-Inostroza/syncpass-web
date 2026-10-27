@@ -74,3 +74,32 @@ export function Barra({
     </div>
   );
 }
+
+/** Estilo de los campos de formulario: el mismo de la pantalla de inicio de sesión. */
+export const CLASE_CAMPO =
+  'w-full min-h-11 rounded-xl border border-zinc-300 bg-white px-4 text-base text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100';
+
+export const CLASE_BOTON_PRIMARIO =
+  'min-h-12 rounded-xl bg-indigo-600 px-4 font-semibold text-white hover:bg-indigo-500 disabled:opacity-60';
+
+export const CLASE_BOTON_SECUNDARIO =
+  'min-h-11 rounded-xl border border-zinc-300 px-4 font-medium hover:bg-zinc-100 disabled:opacity-60 dark:border-zinc-700 dark:hover:bg-zinc-800';
+
+export const CLASE_BOTON_PELIGRO =
+  'min-h-11 rounded-xl border border-rose-400 px-4 font-medium text-rose-700 hover:bg-rose-50 disabled:opacity-60 dark:border-rose-500/50 dark:text-rose-300 dark:hover:bg-rose-500/10';
+
+/**
+ * Etiqueta + control (+ ayuda opcional). La etiqueta envuelve al control, así los lectores de pantalla y los tests lo
+ * asocian solos. La ayuda va FUERA de la etiqueta para que no pase a formar parte del nombre del campo.
+ */
+export function Campo({ etiqueta, ayuda, children }: { etiqueta: string; ayuda?: string; children: ReactNode }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="flex flex-col gap-1 text-sm font-medium">
+        {etiqueta}
+        {children}
+      </label>
+      {ayuda && <span className="text-xs text-zinc-500 dark:text-zinc-400">{ayuda}</span>}
+    </div>
+  );
+}

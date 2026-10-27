@@ -45,7 +45,7 @@ export function mensajeAmigable(status: number, e: ErrorBackend): string {
   return mensaje ?? `No se pudo completar la operación (código ${status}).`;
 }
 
-type Metodo = 'GET' | 'POST';
+type Metodo = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
 export interface Opciones {
   metodo?: Metodo;

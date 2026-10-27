@@ -82,3 +82,38 @@ export interface ResumenEvento {
   primeraMarcacion: string | null;
   ultimaMarcacion: string | null;
 }
+
+/** Lo que se envía para crear o editar un proyecto (caso §3.2). El estado es opcional: por defecto PLANIFICADO. */
+export interface ProyectoEntrada {
+  titulo: string;
+  descripcion: string | null;
+  areaTematica: string;
+  unidadVecinal: string;
+  fechaInicio: string;
+  fechaTermino: string | null;
+  estado: Proyecto['estado'];
+}
+
+/** Lo que se envía para crear o editar un evento. Latitud y longitud van juntas o ninguna. */
+export interface EventoEntrada {
+  proyectoId: number;
+  nombre: string;
+  fechaHoraProgramada: string;
+  cuposMaximos: number | null;
+  recinto: string | null;
+  latitud: number | null;
+  longitud: number | null;
+  radioMetros: number;
+}
+
+/** Una fila del reporte de asistencia. Sin quién registró, coordenadas ni comentarios (caso §5.1). */
+export interface AsistenciaFila {
+  codigo: string;
+  tipo: Asistente['tipo'];
+  estadoInscripcion: Asistente['estadoInscripcion'];
+  marcadoEn: string;
+  estadoValidacion: 'VALIDA' | 'FUERA_DE_RADIO' | 'SIN_UBICACION';
+  distanciaMetros: number | null;
+  satisfaccion: number | null;
+  utilidad: number | null;
+}

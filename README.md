@@ -3,7 +3,7 @@
 Aplicación web para que el **Docente / Coordinador(a) de Proyecto** supervise sus eventos en tiempo real
 (caso DSY1105, §2.4 y §4.1): quórum, ubicación de las marcaciones y satisfacción de los asistentes.
 
-La asistencia se registra desde la app Android (`syncpass-mobile`); esta web **solo consulta**. Habla con el
+La asistencia se registra desde la app Android (`syncpass-mobile`); esta web **supervisa y gestiona el catálogo**. Habla con el
 backend (`syncpass-api`), nunca directamente con Cognito.
 
 React 19 · TypeScript (modo estricto) · Vite 8 · Tailwind 4 · wouter · Vitest.
@@ -18,6 +18,8 @@ React 19 · TypeScript (modo estricto) · Vite 8 · Tailwind 4 · wouter · Vite
 - **Eventos**: proyectos con sus eventos, ordenados por fecha.
 - **Quórum de un evento**: asistentes marcados y cupos, dentro/fuera del radio/sin ubicación, encuestas recibidas
   y promedios de satisfacción y utilidad, y primera y última marcación. Se **actualiza solo cada 15 s** (apagable).
+- **Proyectos y eventos** (caso §3.1): crear, editar y eliminar desde el panel. No se elimina un proyecto con eventos ni un evento con asistencias (el servidor responde 409 y la web muestra el motivo). Latitud y longitud van juntas o ninguna.
+- **Reporte CSV** (caso §2.4): "Descargar CSV" en cada evento, con una fila por asistencia (código, tipo, inscripción, hora UTC, ubicación, distancia, satisfacción y utilidad). Separador `;` y BOM para que Excel abra bien las tildes. Sin datos que identifiquen: ni quién registró, ni coordenadas ni comentarios.
 - Claro u oscuro según el sistema; controles de 44 px como mínimo; lectores de pantalla (barras con `role="progressbar"`,
   errores con `role="alert"`).
 
@@ -34,7 +36,7 @@ npm run dev                 # http://localhost:5173
 | Comando | Qué hace |
 |---|---|
 | `npm run dev` | servidor de desarrollo |
-| `npm test` | 65 pruebas (Vitest + Testing Library) |
+| `npm test` | 104 pruebas (Vitest + Testing Library) |
 | `npm run lint` | oxlint |
 | `npm run build` | comprueba tipos (`tsc`, modo estricto) y genera `dist/` |
 
@@ -88,6 +90,7 @@ Las pruebas verifican la lógica y las pantallas con un servidor **simulado**. S
 
 - **Un navegador real contra el backend real**: CORS, cabeceras y tiempos reales.
 - **El flujo completo con Cognito** (grupos en el token, renovación real).
+- **Los formularios y el CSV contra el backend real**: se probaron con un servidor simulado; falta una prueba con Excel y con datos reales del servidor.
 - **La apariencia** en pantallas reales y en modo oscuro (se escribió y compila, pero no se miró).
 - El panel necesita que existan marcaciones sincronizadas para mostrar algo más que ceros.
 
@@ -95,4 +98,4 @@ Las pruebas verifican la lógica y las pantallas con un servidor **simulado**. S
 
 - Probarla en el navegador contra el backend.
 - Un aviso de lint (`react/set-state-in-effect`) que es una heurística sobre el patrón estándar de cargar al montar.
-- Si se quisiera ir más allá de la supervisión: listado de asistencias y exportación de informes (no están en el MVP).
+- Informes en PDF y gráficos: el CSV cubre el reporte básico; lo demás queda fuera del MVP.
