@@ -80,7 +80,7 @@ function Cabecera() {
   const activa = useSeccionActiva();
   return (
     <header className="sticky top-0 z-30 bg-white">
-      <div className="mx-auto grid h-[72px] max-w-[1480px] grid-cols-[auto_1fr_auto] items-center gap-4 px-5 sm:h-[88px] sm:px-8">
+      <div className="mx-auto grid h-14 max-w-[1480px] grid-cols-[auto_1fr_auto] items-center gap-4 px-5 sm:h-16 sm:px-8">
         <Link href="/" aria-label="SyncPass, inicio" className="shrink-0">
           <Logo />
         </Link>
@@ -105,7 +105,7 @@ function Cabecera() {
 
         <Link
           href="/ingresar"
-          className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 text-[15px] font-semibold sm:min-h-[52px] sm:px-7 ${BOTON_PRINCIPAL}`}
+          className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-4 text-[15px] font-semibold sm:px-6 ${BOTON_PRINCIPAL}`}
         >
           Iniciar sesión <ArrowRight className="h-4 w-4" aria-hidden />
         </Link>
@@ -130,7 +130,7 @@ function Inicio() {
       className="relative isolate overflow-hidden bg-[#f4f8ff] bg-cover bg-[60%_bottom] bg-no-repeat"
       style={{ backgroundImage: `url(${fondoHero})` }}
     >
-      <div className="mx-auto max-w-[1480px] px-5 pb-16 pt-12 sm:px-8 sm:pt-16 lg:min-h-[calc(100vh-88px)] lg:pb-8 lg:pt-[4vh]">
+      <div className="mx-auto max-w-[1480px] px-5 pb-16 pt-12 sm:px-8 sm:pt-16 lg:min-h-[calc(100vh-64px)] lg:pb-8 lg:pt-[4vh]">
         <div className="anim-aparecer max-w-[640px]">
           <p className="inline-flex items-center gap-2 rounded-full bg-[#dbe8ff]/80 px-4 py-2 text-[13px] font-bold uppercase tracking-wide text-[#0b63f6]">
             <ChartColumn className="h-4 w-4" aria-hidden />
@@ -161,13 +161,16 @@ function Inicio() {
           </Link>
         </div>
 
-        <ul className="mt-10 grid max-w-[900px] lg:mt-[3vh] grid-cols-2 gap-x-6 gap-y-5 sm:flex sm:flex-wrap sm:gap-x-10 xl:flex-nowrap">
+        <ul className="mt-10 grid max-w-[1000px] grid-cols-2 gap-3 sm:grid-cols-4 lg:mt-[3vh]">
           {GARANTIAS.map(({ icono: Icono, color, texto }) => (
-            <li key={texto[0]} className="flex items-center gap-3">
+            <li
+              key={texto[0]}
+              className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-lg shadow-blue-900/15 ring-1 ring-blue-100"
+            >
               <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-full ${color}`}>
                 <Icono className="h-6 w-6" aria-hidden />
               </span>
-              <span className="text-[15px] font-medium leading-snug text-[#1d2a55]">
+              <span className="text-[15px] font-semibold leading-snug text-[#0f1b45]">
                 {texto[0]}
                 <br />
                 {texto[1]}
