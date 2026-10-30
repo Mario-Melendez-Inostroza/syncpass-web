@@ -47,7 +47,7 @@ describe('jwt', () => {
     expect(esMonitor(u)).toBe(true);
   });
 
-  it('los grupos de las apps de ejemplo del profesor no dan rol', () => {
+  it('los grupos de otros proyectos no dan rol', () => {
     const u = usuarioDe(jwtDePrueba({ grupos: ['USER', 'profesor', 'Administrador'] }))!;
     expect(esCoordinador(u)).toBe(false);
     expect(esMonitor(u)).toBe(false);

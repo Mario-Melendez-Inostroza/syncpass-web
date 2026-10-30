@@ -415,7 +415,7 @@ function Contacto() {
                 <Users className="mt-0.5 h-6 w-6 shrink-0 text-blue-200" aria-hidden />
                 <div>
                   <dt className="font-semibold">¿Necesitas una cuenta?</dt>
-                  <dd className="mt-1 text-blue-100">Pídesela al equipo docente: las cuentas de coordinador y de monitor las crea el equipo.</dd>
+                  <dd className="mt-1 text-blue-100">Pídesela al equipo de coordinación: las cuentas de coordinador y de monitor las crea el equipo.</dd>
                 </div>
               </div>
             </dl>

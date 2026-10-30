@@ -9,9 +9,6 @@ La asistencia se registra desde la app Android (`syncpass-mobile`). Esta web hab
 
 React 19 · TypeScript (modo estricto) · Vite 8 · Tailwind 4 · wouter · Vitest.
 
-> Parte de una base del profesor (`docentedev/fs2-web`). Esa base solo tenía un login que no podía funcionar; todo lo
-> demás es desarrollo propio.
-
 ## El sistema completo
 
 ```
@@ -44,15 +41,33 @@ consolidación y **100 %** de operación sin conexión. Son objetivos, no medici
 
 ## Cómo usamos la IA
 
-Usamos **Claude Code** (Anthropic) como asistente de programación, y lo decimos con claridad:
+Trabajamos con **Claude Code** (Anthropic) como asistente de programación, y lo hacemos como se trabaja hoy de forma profesional:
+**no se le da una orden suelta, se le da contexto, reglas y un proceso** en archivos del propio repositorio. La IA no recuerda
+conversaciones anteriores; lo que está escrito en estos archivos es lo que lee al empezar cada tarea.
 
-- **Qué hizo la IA:** a partir del `caso.md` propuso la arquitectura, escribió gran parte del código, las pruebas y la documentación,
-  y ayudó a diagnosticar errores (por ejemplo, por qué el sitio publicado "no conectaba": se compiló apuntando a `localhost`).
-- **Qué hicimos nosotros:** definimos qué pedía el caso, decidimos los roles y las pantallas, le entregamos el diseño de referencia
-  (la imagen del inicio) y los logos, corregimos a la IA cuando entendió mal (el **asistente también es un rol**), probamos en el
-  navegador y en un teléfono, desplegamos y revisamos cada cambio antes de subirlo con su Pull Request.
-- **Cómo evitamos confiar a ciegas:** pruebas automáticas, TypeScript en modo estricto, pruebas "rompiendo la regla a propósito"
-  para ver que fallan, y una sección honesta de *lo que no está comprobado*.
+| Archivo | Qué contiene |
+|---|---|
+| [`AGENTS.md`](AGENTS.md) y `CLAUDE.md` | Guía de entrada: qué es el proyecto, stack, comandos, estructura, convenciones y qué comprobar antes de dar algo por terminado |
+| [`docs/ia/CONTEXTO.md`](docs/ia/CONTEXTO.md) | El caso resumido: problema, roles, datos, metas y restricciones |
+| [`docs/ia/REGLAS.md`](docs/ia/REGLAS.md) | **Instrucciones y restricciones**: sin datos personales, sin secretos, autorización en el servidor, pruebas obligatorias, las acciones de permisos las ejecuta una persona |
+| [`docs/ia/ROADMAP.md`](docs/ia/ROADMAP.md) | Fases del proyecto con su estado real y lo pendiente |
+| [`docs/ia/DECISIONES.md`](docs/ia/DECISIONES.md) | Decisiones de diseño con su porqué (offline-first, idempotencia, roles, sin datos personales…) |
+| [`docs/ia/FLUJO-DE-TRABAJO.md`](docs/ia/FLUJO-DE-TRABAJO.md) | El ciclo de trabajo, quién hace qué y cómo se verifica lo que escribe la IA |
+| [`docs/ia/PROMPTS.md`](docs/ia/PROMPTS.md) | Plantillas de instrucciones por tipo de tarea (funcionalidad, error, pruebas, revisión, despliegue) |
+
+**El ciclo de cada tarea:** especificar → la IA propone un plan y una persona lo aprueba → implementar en pasos pequeños →
+**verificar ejecutando** (compilación, pruebas, lint, prueba real contra la nube) → una persona revisa el cambio → Pull Request con
+integración continua → documentar lo hecho y lo que no se pudo comprobar.
+
+**Qué hace la IA:** propone arquitectura y alternativas, escribe código, pruebas y documentación, diagnostica errores leyendo
+registros y código, y ejecuta las verificaciones.
+**Qué hacemos nosotros:** definimos y corregimos los requisitos (por ejemplo, que el asistente también es un rol), aprobamos los
+planes, revisamos cada cambio, ejecutamos las acciones de permisos en AWS, probamos en el teléfono y en el navegador, y somos
+responsables de lo que se entrega y de poder explicarlo.
+
+**Cómo controlamos sus errores:** nada se da por bueno sin ejecutarlo; se rompen reglas a propósito para comprobar que las pruebas
+las detectan; se compara el contrato entre la app y el backend; se prueba el flujo real contra el API Gateway desplegado; y antes
+de publicar un repositorio se revisa que no haya secretos ni datos reales.
 
 ## Roles y cómo iniciar sesión
 
@@ -60,9 +75,9 @@ El ingreso es contra el backend (que habla con Amazon Cognito) y el rol sale del
 
 | Rol | Cómo entra | Qué ve en la web |
 |---|---|---|
-| **COORDINADOR** | Cuenta creada por el equipo docente | Panel completo: proyectos, eventos, asistentes, credenciales QR, informes |
+| **COORDINADOR** | Cuenta creada por el equipo de coordinación | Panel completo: proyectos, eventos, asistentes, credenciales QR, informes |
 | **ASISTENTE** | **Se registra solo** en `/#/registro` | Talleres (cupos, inscribirse, cancelar) y "Mi credencial" con su QR |
-| **MONITOR** | Cuenta creada por el equipo docente | Solo usa la app Android: la web le indica que la descargue |
+| **MONITOR** | Cuenta creada por el equipo de coordinación | Solo usa la app Android: la web le indica que la descargue |
 
 Los roles se leen del token **sin verificar su firma**, solo para decidir qué mostrar. La autorización real la hace el servidor
 en cada petición, y responde 403 a quien no corresponde aunque el botón estuviera visible.
@@ -196,7 +211,7 @@ npm run dev                 # http://localhost:5173
 El cliente añade `/api` por su cuenta (si la variable trae el sufijo, se quita). **Lo que empieza por `VITE_` queda
 visible en el navegador: nunca pongas secretos ahí.** El `.env` no se sube a Git; solo `.env.example`.
 
-Para entrar hace falta una cuenta del grupo COORDINADOR en Cognito (la crea el equipo docente) y datos: arranca el
+Para entrar hace falta una cuenta del grupo COORDINADOR en Cognito (la crea el equipo de coordinación) y datos: arranca el
 backend con el perfil `demo` (catálogo **ficticio**) o crea tus propios proyectos desde el panel.
 
 ## Estructura
@@ -224,18 +239,6 @@ src/
   vez. Si el servidor rechaza el refresh token, la sesión termina. Si solo falla la red, la sesión **se conserva**.
 - **No se usa `/api/health` para "validar" la sesión**: esa ruta es pública.
 - **CSV**: las celdas de texto que empiezan por `=`, `+`, `-` o `@` se neutralizan contra la inyección de fórmulas.
-
-## Qué se corrigió respecto a la base del profesor
-
-| En la base | Aquí |
-|---|---|
-| `res.accessToken` plano: el backend responde `res.data.accessToken`, y el login guardaba la cadena `"undefined"` | Solo se desempaqueta `data`; una respuesta sin el formato esperado es un error |
-| `checkSession()` consultaba `/health` (público): cualquier texto guardado daba acceso | La validez la decide el servidor en cada llamada |
-| No se comprobaba `response.ok` | Cada error se traduce a un mensaje claro |
-| El prefijo `/api` vivía en el `.env` | Va en el código; el `.env` lleva solo el host |
-| `npm run build` no compilaba y `strict` estaba desactivado | Compila en modo estricto |
-| `.env` no estaba en `.gitignore` | Ignorado; solo se versiona `.env.example` |
-| Sin pruebas ni limpieza de dependencias | 170 pruebas; se quitaron `oidc-client-ts` y `react-oidc-context` |
 
 ## Despliegue
 
