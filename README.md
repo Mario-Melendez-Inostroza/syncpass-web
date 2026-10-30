@@ -272,5 +272,5 @@ Proyecto del curso DSY1105 · Desarrollo de Aplicaciones Móviles · Duoc UC.
 | Integrante | GitHub | Aporte en este repositorio |
 |---|---|---|
 | Mario Meléndez | [Mario-Melendez-Inostroza](https://github.com/Mario-Melendez-Inostroza) | Desarrollo e integración del sistema |
-| _(nombre completo)_ | [bx1423](https://github.com/bx1423) | Pruebas del formato del código QR del asistente (`src/test/qrTesxto.test.ts`) |
-| _(nombre completo)_ | [Monnacohu](https://github.com/Monnacohu) | Pruebas del formato de fechas y horas (`src/test/formato-fechas.test.ts`) |
+| Benjamín Canales | [bx1423](https://github.com/bx1423) | Pruebas del formato del código QR del asistente (`src/test/qrTesxto.test.ts`) |
+| María José Huenul | [Monnacohu](https://github.com/Monnacohu) | Pruebas del formato de fechas y horas (`src/test/formato-fechas.test.ts`) |
