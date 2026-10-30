@@ -26,6 +26,108 @@ Usuario ─► App Android ───────┘                             
 | **syncpass-api** | Backend: autenticación, catálogo, sincronización, quórum y reportes |
 | **syncpass-mobile** | App Android offline-first del monitor |
 
+## El caso que resolvemos
+
+**SyncPass** nace del caso de Ticdgm (CITT Plaza Vespucio, DSY1105): los proyectos de vinculación comunitaria toman la
+asistencia **en papel** y consolidan todo a mano. Eso produce hojas perdidas, filas de 15 a 20 minutos en la entrada,
+encuestas con menos de 15 % de respuesta (se envían semanas después) y barrios con poca señal donde una web normal no sirve.
+
+| Pieza del sistema | Quién la usa | Problema que resuelve |
+|---|---|---|
+| **App Android** (`syncpass-mobile`) | Monitores en terreno | Registrar asistencia con QR, sin internet, y encuestar en el momento |
+| **Panel web** (este repositorio) | Docente / Coordinador(a) | Planificar proyectos y eventos, ver el quórum en vivo y sacar informes sin transcribir planillas |
+| **Portal del asistente** (este repositorio) | Vecinos, estudiantes y docentes | Crear cuenta, ver talleres, inscribirse y mostrar su QR |
+| **API** (`syncpass-api`) | Todos | Guarda todo en PostgreSQL, autentica con Cognito y reparte permisos por rol |
+
+Metas del caso: registrar en **menos de 5 segundos**, **más de 65 %** de respuesta a la encuesta, **80 %** menos tiempo de
+consolidación y **100 %** de operación sin conexión. Son objetivos, no mediciones.
+
+## Cómo usamos la IA
+
+Usamos **Claude Code** (Anthropic) como asistente de programación, y lo decimos con claridad:
+
+- **Qué hizo la IA:** a partir del `caso.md` propuso la arquitectura, escribió gran parte del código, las pruebas y la documentación,
+  y ayudó a diagnosticar errores (por ejemplo, por qué el sitio publicado "no conectaba": se compiló apuntando a `localhost`).
+- **Qué hicimos nosotros:** definimos qué pedía el caso, decidimos los roles y las pantallas, le entregamos el diseño de referencia
+  (la imagen del inicio) y los logos, corregimos a la IA cuando entendió mal (el **asistente también es un rol**), probamos en el
+  navegador y en un teléfono, desplegamos y revisamos cada cambio antes de subirlo con su Pull Request.
+- **Cómo evitamos confiar a ciegas:** pruebas automáticas, TypeScript en modo estricto, pruebas "rompiendo la regla a propósito"
+  para ver que fallan, y una sección honesta de *lo que no está comprobado*.
+
+## Roles y cómo iniciar sesión
+
+El ingreso es contra el backend (que habla con Amazon Cognito) y el rol sale del grupo del usuario (`cognito:groups`).
+
+| Rol | Cómo entra | Qué ve en la web |
+|---|---|---|
+| **COORDINADOR** | Cuenta creada por el equipo docente | Panel completo: proyectos, eventos, asistentes, credenciales QR, informes |
+| **ASISTENTE** | **Se registra solo** en `/#/registro` | Talleres (cupos, inscribirse, cancelar) y "Mi credencial" con su QR |
+| **MONITOR** | Cuenta creada por el equipo docente | Solo usa la app Android: la web le indica que la descargue |
+
+Los roles se leen del token **sin verificar su firma**, solo para decidir qué mostrar. La autorización real la hace el servidor
+en cada petición, y responde 403 a quien no corresponde aunque el botón estuviera visible.
+
+## Mantenedores (CRUD) de la web
+
+| Mantenedor | Pantallas | Operaciones | Reglas |
+|---|---|---|---|
+| **Proyectos** ("creación de curso") | `ProyectoFormPagina` | Crear · editar · eliminar · listar | Fechas coherentes; no se elimina un proyecto con eventos (409) |
+| **Eventos** (talleres) | `EventoFormPagina`, `EventoPagina` | Crear · editar · eliminar · listar | Cupos, quórum mínimo ≤ cupos, GPS completo; no se elimina un evento con asistencias (409) |
+| **Asistentes** ("estudiantes del curso") | `AsistentesPagina` | Alta en lote (hasta 200) · editar · eliminar · filtrar | El código lo genera el servidor; sin datos personales |
+
+Cada formulario valida **antes de enviar** y, si el servidor rechaza algo, muestra su mensaje tal cual.
+
+## Qué tecnologías usamos y por qué
+
+| Tecnología | Qué es | Por qué la elegimos |
+|---|---|---|
+| **React 19** | Biblioteca para construir interfaces con **componentes**: piezas reutilizables que se redibujan cuando cambia su estado | La interfaz del panel (formularios, listas, quórum que se actualiza solo) es mucho estado cambiante; React lo maneja sin tocar el DOM a mano |
+| **TypeScript (estricto)** | JavaScript con tipos, comprobados al compilar | Los errores aparecen al escribir, no en producción. Los tipos de `api/tipos.ts` reflejan los DTO del backend |
+| **Vite 8** | Herramienta de desarrollo y compilación | Arranca al instante y recarga en caliente; genera un `dist/` pequeño y estático que se publica en cualquier hosting |
+| **Tailwind CSS 4** | Estilos con **clases utilitarias** (`flex`, `p-4`, `text-sky-700`) escritas junto al componente | No hay hojas de estilo enormes ni nombres de clase que inventar; el diseño queda consistente y los colores de marca viven en un solo lugar (`index.css`) |
+| **wouter** | Enrutador mínimo | Pesa muy poco; con rutas por `#` sirve en cualquier hosting estático sin reglas de reescritura |
+| **Vitest + Testing Library** | Pruebas de componentes y lógica | Prueban como las usa una persona (buscan "botón Guardar"), con un servidor simulado |
+| **qrcode** | Genera la matriz del QR | Dibujamos el QR como **SVG** propio, sin canvas, imprimible |
+| **fontsource (Plus Jakarta Sans)** | Tipografía empaquetada | La web no pide nada a servidores de terceros |
+
+## Arquitectura de la web
+
+La web es solo la **vista**: toda regla de negocio vive en el backend (controller → service → repository).
+
+```
+ Página (componente React)  ──►  api/endpoints.ts  ──►  api/cliente.ts  ──►  Backend (API Gateway → Spring Boot)
+   estado local, formulario      una función por          fetch + token +
+   y validación                  endpoint                 renovación en 401
+```
+
+| Capa | Archivos | Responsabilidad |
+|---|---|---|
+| Páginas | `paginas/*.tsx` | Dibujar, recoger datos del formulario, mostrar errores |
+| Cliente de la API | `api/cliente.ts`, `api/endpoints.ts`, `api/tipos.ts` | Una función por endpoint, tipada; añade el token y lo renueva |
+| Sesión | `auth/*` | Guarda el token en `sessionStorage`, lee los roles, protege rutas |
+| Utilidades puras | `csv.ts`, `formulario.ts`, `qrTexto.ts`, `formato.ts` | Lógica sin pantalla: fácil de probar |
+
+## Mockup de la web
+
+```
+ ┌─ Inicio (sin sesión) ──────────────────────────────────────────┐   ┌─ Panel del coordinador ───────────┐
+ │ [logo]   Inicio  Cómo funciona  Contacto        [Iniciar sesión]│   │ Proyectos 3 · Eventos 8 · Próx. 2  │
+ │                                                                 │   │ ▾ Alfabetización digital  [Editar] │
+ │   Registra asistencia en terreno,                               │   │    Taller de correo   05/11  14/30 │
+ │   incluso sin internet                [ fondo de ondas azules ] │   │    Quórum ▓▓▓▓▓░░ Faltan 4         │
+ │   ✔ Sin papel  ✔ Con QR  ✔ Sin conexión  ✔ Datos seguros       │   │ [Nuevo proyecto] [Descargar CSV]   │
+ └─────────────────────────────────────────────────────────────────┘   └────────────────────────────────────┘
+```
+
+La imagen de referencia con la que se construyó el inicio está en `src/assets/imagen_referencial.png` (local, no versionada).
+
+## Pruebas y CI
+
+- **Pruebas:** `npm test` (Vitest). Cubren el cliente HTTP (token, renovación, errores), los formularios, el CSV (BOM, comillas,
+  inyección de fórmulas), el QR del asistente, el formato de fechas y las pantallas del panel y del asistente.
+- **Integración continua:** cada `push` y cada Pull Request ejecutan **GitHub Actions** (`.github/workflows/ci.yml`):
+  instala, revisa el lint, compila con TypeScript estricto y corre las pruebas.
+
 ## Qué hace
 
 **Sin sesión** (`/`): página de inicio hecha a partir de la imagen de referencia del equipo: cabecera blanca con el logo, el menú
@@ -38,7 +140,7 @@ sin pedir nada a internet). Las imágenes de la marca están en `src/assets` (`l
 > 80 % menos horas de digitación, 100 % operativa sin conexión). Son **objetivos del proyecto, todavía no mediciones**, y
 > la página lo dice.
 
-**Con sesión** (solo el grupo **COORDINADOR**; un monitor recibe la indicación de usar la app Android):
+**Con sesión como COORDINADOR** (un monitor recibe la indicación de usar la app Android; el asistente ve su propio portal):
 
 | Pantalla | Qué permite |
 |---|---|
@@ -81,7 +183,7 @@ npm run dev                 # http://localhost:5173
 | Comando | Qué hace |
 |---|---|
 | `npm run dev` | Servidor de desarrollo |
-| `npm test` | 157 pruebas (Vitest + Testing Library) |
+| `npm test` | 170 pruebas (Vitest + Testing Library) |
 | `npm run lint` | oxlint |
 | `npm run build` | Comprueba tipos (`tsc`, modo estricto) y genera `dist/` |
 
@@ -133,7 +235,7 @@ src/
 | El prefijo `/api` vivía en el `.env` | Va en el código; el `.env` lleva solo el host |
 | `npm run build` no compilaba y `strict` estaba desactivado | Compila en modo estricto |
 | `.env` no estaba en `.gitignore` | Ignorado; solo se versiona `.env.example` |
-| Sin pruebas ni limpieza de dependencias | 157 pruebas; se quitaron `oidc-client-ts` y `react-oidc-context` |
+| Sin pruebas ni limpieza de dependencias | 170 pruebas; se quitaron `oidc-client-ts` y `react-oidc-context` |
 
 ## Despliegue
 
@@ -167,5 +269,5 @@ Proyecto del curso DSY1105 · Desarrollo de Aplicaciones Móviles · Duoc UC.
 | Integrante | GitHub | Aporte en este repositorio |
 |---|---|---|
 | Mario Meléndez | [Mario-Melendez-Inostroza](https://github.com/Mario-Melendez-Inostroza) | Desarrollo e integración del sistema |
-| _(nombre completo)_ | [bx1423](https://github.com/bx1423) | _(completar: qué aportó o revisó)_ |
-| _(nombre completo)_ | [Monnacohu](https://github.com/Monnacohu) | _(completar: qué aportó o revisó)_ |
+| _(nombre completo)_ | [bx1423](https://github.com/bx1423) | Pruebas del formato del código QR del asistente (`src/test/qrTesxto.test.ts`) |
+| _(nombre completo)_ | [Monnacohu](https://github.com/Monnacohu) | Pruebas del formato de fechas y horas (`src/test/formato-fechas.test.ts`) |
