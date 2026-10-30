@@ -187,7 +187,7 @@ Rutas (con `#`, así sirve cualquier hosting estático sin reglas de reescritura
 
 ## Cómo ejecutarla
 
-Requisitos: Node 20 o superior.
+Requisitos: Node 22 o superior (se usa Node 24 en la integración continua).
 
 ```
 npm ci
